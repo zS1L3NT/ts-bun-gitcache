@@ -1,0 +1,10 @@
+{
+	"notion": {
+		"token": "",
+		"database_id": ""
+	},
+	"github": {
+		"token": "",
+		"owner": ""
+	}
+}

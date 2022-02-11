@@ -1,0 +1,20 @@
+{
+	"name": "ts-github-notion-sync",
+	"description": "Sync my notion board with my github repositories information",
+	"main": "dist/app.js",
+	"author": "zS1L3NT <zechariahtan144@gmail.com> (https://www.zectan.com)",
+	"license": "GPL-3.0",
+	"scripts": {
+		"start": "node dist/app.js",
+		"dev": "ts-node --files src/app.ts"
+	},
+	"dependencies": {
+		"@notionhq/client": "^0.4.13",
+		"@octokit/core": "^3.5.1",
+		"colors": "^1.4.0",
+		"tracer": "^1.1.5"
+	},
+	"devDependencies": {
+		"typescript": "^4.5.5"
+	}
+}

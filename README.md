@@ -18,7 +18,7 @@ I have quite a few GitHub repositories that I have been spending my time managin
     -   Tags
     -   Archived
     -   Private
--   Runs the sync 60 seconds after the previous sync finishes
+-   Runs the sync every minute at 0s
 
 ## Usage
 
@@ -45,5 +45,6 @@ $ npm run dev
 -   Github
     -   [![@octokit/core](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/@octokit/core?style=flat-square)](https://npmjs.com/package/@octokit/core)
 -   Miscellaneous
+    -   [![after-every](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/after-every?style=flat-square)](https://npmjs.com/package/after-every)
     -   [![colors](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/colors?style=flat-square)](https://npmjs.com/package/colors)
     -   [![tracer](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/tracer?style=flat-square)](https://npmjs.com/package/tracer)

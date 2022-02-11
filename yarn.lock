@@ -94,6 +94,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.17.tgz#a8ddf6e0c2341718d74ee3dc413a13a042c45a0c"
   integrity sha512-e8PUNQy1HgJGV3iU/Bp2+D/DXh3PYeyli8LgIwsQcs1Ar1LoaWHSIT6Rw+H2rNJmiq6SNWiDytfx8+gYj7wDHw==
 
+after-every@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/after-every/-/after-every-1.0.4.tgz#20302c9c36db356176bb6fabd5b2431492d1e33b"
+  integrity sha512-7C52dg4QuBw2BoOeQu8mgGO1Ut/YhrqIdDxuh9MMnGu7eo0pyq5CLkoXPkF5ZytTdeKQ6+D0yolSTi8ejRzITw==
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"

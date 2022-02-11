@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@notionhq/client": "^0.4.13",
 		"@octokit/core": "^3.5.1",
+		"after-every": "^1.0.4",
 		"colors": "^1.4.0",
 		"tracer": "^1.1.5"
 	},

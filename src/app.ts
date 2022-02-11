@@ -1,3 +1,4 @@
+import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
 import config from "./config.json"
@@ -109,7 +110,6 @@ const sync = async () => {
 	} catch (err) {
 		logger.error(err)
 	}
-	setTimeout(sync, 60_000)
 }
 
-sync()
+AfterEvery(1).minutes(sync)

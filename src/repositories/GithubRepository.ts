@@ -39,14 +39,14 @@ export default class GithubRepository {
 	}
 
 	public async updateRepository(diffCalc: DiffCalc) {
-		const { gr: githubRepo, nr: notionRepo } = diffCalc
+		const { gr, nr } = diffCalc
 		const updatedKeys = diffCalc.getUpdatedKeys()
 
 		if (updatedKeys.includes("tags")) {
 			await this.github.request("PUT /repos/{owner}/{repo}/topics", {
 				owner: config.github.owner,
-				repo: githubRepo.title,
-				names: notionRepo.tags,
+				repo: gr.title,
+				names: nr.tags,
 				mediaType: {
 					previews: ["mercy"]
 				}
@@ -55,11 +55,26 @@ export default class GithubRepository {
 
 		await this.github.request("PATCH /repos/{owner}/{repo}", {
 			owner: config.github.owner,
-			repo: githubRepo.title,
+			repo: gr.title,
 			...pick(
-				notionRepo,
+				nr,
 				updatedKeys.filter(k => k !== "tags")
 			)
 		})
+	}
+
+	public async getReadmeLastEdited(repo: Repo): Promise<Date> {
+		const commits = await this.github.request("GET /repos/{owner}/{repo}/commits", {
+			owner: config.github.owner,
+			repo: repo.title,
+			path: "README.md",
+			per_page: 1
+		})
+
+		if (commits.data.length > 0) {
+			return new Date(commits.data[0]!.commit.author!.date!)
+		} else {
+			return new Date(0)
+		}
 	}
 }

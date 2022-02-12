@@ -4,15 +4,16 @@ import colors from "colors"
 import config from "./config.json"
 import DiffCalc from "./utils/DiffCalc"
 import express from "express"
+import fs from "fs"
 import GithubRepository from "./repositories/GithubRepository"
 import markdownToPng from "./utils/markdownToPng"
 import NotionRepository from "./repositories/NotionRepository"
 import Tracer from "tracer"
-import { useTryAsync } from "no-try"
 
 const PORT = 2348
 const app = express()
 
+fs.mkdirSync(`./public/${config.github.owner}`, { recursive: true })
 app.use(express.static("public"))
 
 global.logger = Tracer.colorConsole({
@@ -48,8 +49,16 @@ global.logger = Tracer.colorConsole({
 
 const githubRepository = new GithubRepository()
 const notionRepository = new NotionRepository()
+let syncLock = false
 
 const sync = async () => {
+	if (syncLock) {
+		logger.warn(`Previous sync still ongoing, skipping current sync`)
+		return
+	}
+
+	syncLock = true
+
 	try {
 		logger.log("Fetching Github Repositories")
 		const grs = await githubRepository.getRepositories()
@@ -81,13 +90,13 @@ const sync = async () => {
 		for (const gr of grs) {
 			const nr = nrs.find(nr => nr.id === gr.id)!
 
-			const diffCalculator = new DiffCalc(gr, nr)
+			const diffCalc = new DiffCalc(gr, nr)
 
-			if (diffCalculator.getUpdatedKeys().length > 0) {
+			if (diffCalc.getUpdatedKeys().length > 0) {
 				if (gr.lastEdited.getTime() > nr.lastEdited.getTime()) {
 					logger.info(
 						`Updating notion page <${nr.title}>`,
-						diffCalculator.formatGithubToNotion()
+						diffCalc.formatGithubToNotion()
 					)
 					notionRepository.updatePage(nr, nr.pageId)
 				} else {
@@ -95,15 +104,15 @@ const sync = async () => {
 						logger.warn(`Cannot update archived repository <${gr.title}>`)
 						logger.info(
 							`Updating notion page <${nr.title}>`,
-							diffCalculator.formatNotionToGithub()
+							diffCalc.formatNotionToGithub()
 						)
 						notionRepository.updatePage(gr, nr.pageId)
 					} else {
 						logger.info(
 							`Updating github page <${gr.title}>`,
-							diffCalculator.formatNotionToGithub()
+							diffCalc.formatNotionToGithub()
 						)
-						githubRepository.updateRepository(diffCalculator)
+						githubRepository.updateRepository(diffCalc)
 					}
 				}
 			}
@@ -115,22 +124,68 @@ const sync = async () => {
 		for (let i = 0; i < pageBlocks.length; i++) {
 			const blocks = pageBlocks[i]!.results
 			const nr = nrs[i]!
+			logger.log(`Syncing blocks for ${nr.title}`)
 
-			const [err, imageUrl] = await useTryAsync(() => markdownToPng(nr.title))
-			if (err) continue
-
-			await Promise.all(blocks.map(block => notionRepository.deleteBlock(block.id)))
-			if (nr.archived) {
-				await notionRepository.addUnarchiveLink(
-					nr.pageId,
-					`https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`
-				)
+			// Create new blocks where necessary
+			if (nr.archived && blocks.length === 0) {
+				await notionRepository.addUnarchiveLink(nr)
+				await markdownToPng(nr)
+				await notionRepository.addImageBlock(nr)
 			}
-			await notionRepository.addImageBlock(nr.pageId, imageUrl)
+
+			if ((nr.archived && blocks.length === 1) || (!nr.archived && blocks.length === 0)) {
+				await markdownToPng(nr)
+				await notionRepository.addImageBlock(nr)
+			}
+
+			// Update old blocks where necessary
+			for (let i = 0; i < blocks.length; i++) {
+				const block = blocks[i]!
+				if (!("type" in block)) continue
+
+				if ((!nr.archived && i === 0) || (nr.archived && i === 1)) {
+					if (
+						block.type === "image" &&
+						block.image.type === "external" &&
+						block.image.external.url ===
+							`${config.host}/${config.github.owner}/${nr.title}.png`
+					) {
+						const readmeLastEdited = await githubRepository.getReadmeLastEdited(nr)
+						if (
+							new Date(block.last_edited_time).getTime() > readmeLastEdited.getTime()
+						) {
+							continue
+						}
+					}
+
+					await markdownToPng(nr)
+					await notionRepository.editImageBlock(block.id, nr)
+				}
+
+				if (nr.archived && i === 0) {
+					if (
+						block.type === "bookmark" &&
+						block.bookmark.caption.length === 1 &&
+						block.bookmark.caption[0]!.plain_text === `Unarchive` &&
+						block.bookmark.url ===
+							`https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`
+					) {
+						continue
+					}
+					
+					await notionRepository.editUnarchiveLink(block.id, nr)
+				}
+
+				await notionRepository.deleteBlock(block.id)
+			}
 		}
+
+		console.log("Syncing complete\n")
 	} catch (err) {
 		logger.error(err)
 	}
+
+	syncLock = false
 }
 
 AfterEvery(1).minutes(sync)

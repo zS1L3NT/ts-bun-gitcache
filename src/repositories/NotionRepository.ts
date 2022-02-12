@@ -91,14 +91,14 @@ export default class NotionRepository {
 		return await this.notion.blocks.children.list({ block_id: pageId })
 	}
 
-	public async addUnarchiveLink(pageId: string, url: string) {
+	public async addUnarchiveLink(nr: NotionRepo) {
 		return await this.notion.blocks.children.append({
-			block_id: pageId,
+			block_id: nr.pageId,
 			children: [
 				{
 					type: "bookmark",
 					bookmark: {
-						url,
+						url: `https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`,
 						caption: [
 							{
 								text: {
@@ -112,19 +112,48 @@ export default class NotionRepository {
 		})
 	}
 
-	public async addImageBlock(pageId: string, url: string) {
+	public async editUnarchiveLink(blockId: string, nr: NotionRepo) {
+		return await this.notion.blocks.update({
+			block_id: blockId,
+			type: "bookmark",
+			bookmark: {
+				url: `https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`,
+				caption: [
+					{
+						text: {
+							content: "Unarchive"
+						}
+					}
+				]
+			}
+		})
+	}
+
+	public async addImageBlock(nr: NotionRepo) {
 		return await this.notion.blocks.children.append({
-			block_id: pageId,
+			block_id: nr.pageId,
 			children: [
 				{
 					type: "image",
 					image: {
 						external: {
-							url
+							url: `${config.host}/${config.github.owner}/${nr.title}.png`
 						}
 					}
 				}
 			]
+		})
+	}
+
+	public async editImageBlock(blockId: string, nr: NotionRepo) {
+		return await this.notion.blocks.update({
+			block_id: blockId,
+			type: "image",
+			image: {
+				external: {
+					url: `${config.host}/${config.github.owner}/${nr.title}.png`
+				}
+			}
 		})
 	}
 

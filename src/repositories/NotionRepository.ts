@@ -87,6 +87,51 @@ export default class NotionRepository {
 		return repos
 	}
 
+	public async getBlocks(pageId: string) {
+		return await this.notion.blocks.children.list({ block_id: pageId })
+	}
+
+	public async addUnarchiveLink(pageId: string, url: string) {
+		return await this.notion.blocks.children.append({
+			block_id: pageId,
+			children: [
+				{
+					type: "bookmark",
+					bookmark: {
+						url,
+						caption: [
+							{
+								text: {
+									content: "Unarchive"
+								}
+							}
+						]
+					}
+				}
+			]
+		})
+	}
+
+	public async addImageBlock(pageId: string, url: string) {
+		return await this.notion.blocks.children.append({
+			block_id: pageId,
+			children: [
+				{
+					type: "image",
+					image: {
+						external: {
+							url
+						}
+					}
+				}
+			]
+		})
+	}
+
+	public async deleteBlock(blockId: string) {
+		return await this.notion.blocks.delete({ block_id: blockId })
+	}
+
 	public async deletePage(pageId: string) {
 		await this.notion.pages.update({
 			page_id: pageId,

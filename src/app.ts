@@ -1,10 +1,19 @@
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
+import config from "./config.json"
 import DiffCalc from "./utils/DiffCalc"
+import express from "express"
 import GithubRepository from "./repositories/GithubRepository"
+import markdownToPng from "./utils/markdownToPng"
 import NotionRepository from "./repositories/NotionRepository"
 import Tracer from "tracer"
+import { useTryAsync } from "no-try"
+
+const PORT = 2348
+const app = express()
+
+app.use(express.static("public"))
 
 global.logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
@@ -100,10 +109,30 @@ const sync = async () => {
 			}
 		}
 
-		logger.log(`Sync complete\n`)
+		logger.log(`Fetching Notion Page Blocks`)
+		const pageBlocks = await Promise.all(nrs.map(nr => notionRepository.getBlocks(nr.pageId)))
+
+		for (let i = 0; i < pageBlocks.length; i++) {
+			const blocks = pageBlocks[i]!.results
+			const nr = nrs[i]!
+
+			const [err, imageUrl] = await useTryAsync(() => markdownToPng(nr.title))
+			if (err) continue
+
+			await Promise.all(blocks.map(block => notionRepository.deleteBlock(block.id)))
+			if (nr.archived) {
+				await notionRepository.addUnarchiveLink(
+					nr.pageId,
+					`https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`
+				)
+			}
+			await notionRepository.addImageBlock(nr.pageId, imageUrl)
+		}
 	} catch (err) {
 		logger.error(err)
 	}
 }
 
 AfterEvery(1).minutes(sync)
+
+app.listen(PORT, () => console.log(`Server running on PORT ${PORT}`))

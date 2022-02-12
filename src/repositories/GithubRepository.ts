@@ -4,7 +4,7 @@ import pick from "../utils/pick"
 import { Octokit as Github } from "@octokit/core"
 
 export default class GithubRepository {
-	public constructor(private github: Github) {}
+	private github: Github = new Github({ auth: config.github.token })
 
 	public async getRepositories(): Promise<Repo[]> {
 		const { data: user } = await this.github.request("GET /user")

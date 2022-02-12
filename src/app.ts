@@ -1,13 +1,10 @@
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
-import config from "./config.json"
 import DiffCalc from "./utils/DiffCalc"
 import GithubRepository from "./repositories/GithubRepository"
 import NotionRepository from "./repositories/NotionRepository"
 import Tracer from "tracer"
-import { Client as Notion } from "@notionhq/client"
-import { Octokit as Github } from "@octokit/core"
 
 global.logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
@@ -40,14 +37,11 @@ global.logger = Tracer.colorConsole({
 	}
 })
 
-const notion = new Notion({ auth: config.notion.token })
-const github = new Github({ auth: config.github.token })
+const githubRepository = new GithubRepository()
+const notionRepository = new NotionRepository()
 
 const sync = async () => {
 	try {
-		const githubRepository = new GithubRepository(github)
-		const notionRepository = new NotionRepository(notion)
-
 		logger.log("Fetching Github Repositories")
 		const grs = await githubRepository.getRepositories()
 

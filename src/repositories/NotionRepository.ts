@@ -3,7 +3,7 @@ import config from "../config.json"
 import { Client as Notion } from "@notionhq/client"
 
 export default class NotionRepository {
-	public constructor(private notion: Notion) {}
+	private notion: Notion = new Notion({ auth: config.notion.token })
 
 	public async getRepositories(): Promise<NotionRepo[]> {
 		const repos: NotionRepo[] = []

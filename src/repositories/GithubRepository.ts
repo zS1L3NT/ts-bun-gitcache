@@ -35,7 +35,7 @@ export default class GithubRepository {
 			}
 		}
 
-		return repos
+		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
 	}
 
 	public async updateRepository(diffCalc: DiffCalc) {

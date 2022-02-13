@@ -84,7 +84,7 @@ export default class NotionRepository {
 			startCursor = response.next_cursor || undefined
 		}
 
-		return repos
+		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
 	}
 
 	public async getBlocks(pageId: string) {

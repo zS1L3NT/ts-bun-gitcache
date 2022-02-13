@@ -14,7 +14,10 @@ export default async (repo: Repo) => {
 			.then(res => convertMd(res.data, { type: "html" }))
 	)
 
-	if (err) return `${config.host}/default.png`
+	if (err) {
+		fs.copyFileSync("./public/default.png", `./public/${config.github.owner}/${repo.title}.png`)
+		return `${config.host}/${config.github.owner}/${repo.title}.png`
+	}
 
 	const html = res._content
 		.replaceAll("  ", "\t")

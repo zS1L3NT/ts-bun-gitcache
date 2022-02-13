@@ -1,7 +1,8 @@
 import axios from "axios"
 import config from "../config.json"
 import convertMd from "convert-md"
-import nodeHtmlToImage from "node-html-to-image"
+import fs from "fs"
+import puppeteer from "puppeteer"
 import { useTryAsync } from "no-try"
 
 export default async (repo: Repo) => {
@@ -21,10 +22,21 @@ export default async (repo: Repo) => {
 		.replace("body {", "body {\n\t\t\twidth: 700px;")
 		.replace("background-color: white", "background-color: 2f3437")
 
-	await nodeHtmlToImage({
-		html,
-		output: `./public/${config.github.owner}/${repo.title}.png`
-	})
+	const browser = await puppeteer.launch(
+		process.platform === "linux"
+			? { args: ["--no-sandbox", "--disable-setuid-sandbox"] }
+			: undefined
+	)
+	const page = await browser.newPage()
+
+	await page.setContent(html)
+
+	const content = await page.$("body")
+	const imageBuffer = await content!.screenshot({ omitBackground: true })
+
+	await page.close()
+	await browser.close()
+	fs.writeFileSync(`./public/${config.github.owner}/${repo.title}.png`, imageBuffer)
 
 	return `${config.host}/${config.github.owner}/${repo.title}.png`
 }

@@ -87,8 +87,8 @@ export default class NotionRepository {
 		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
 	}
 
-	public async getBlocks(pageId: string) {
-		return await this.notion.blocks.children.list({ block_id: pageId })
+	public async getBlocks(nr: NotionRepo) {
+		return await this.notion.blocks.children.list({ block_id: nr.pageId })
 	}
 
 	public async addUnarchiveLink(nr: NotionRepo) {

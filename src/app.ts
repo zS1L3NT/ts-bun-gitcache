@@ -121,7 +121,7 @@ const sync = async () => {
 		}
 
 		logger.log(`Fetching Notion Page Blocks`)
-		const pageBlocks = await Promise.all(nrs.map(nr => notionRepository.getBlocks(nr.pageId)))
+		const pageBlocks = await Promise.all(nrs.map(nr => notionRepository.getBlocks(nr)))
 
 		for (let i = 0; i < pageBlocks.length; i++) {
 			const blocks = pageBlocks[i]!.results

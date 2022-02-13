@@ -8,7 +8,6 @@ import fs from "fs"
 import GithubRepository from "./repositories/GithubRepository"
 import isImageBlock from "./functions/isImageBlock"
 import isUnarchiveBlock from "./functions/isUnarchiveBlock"
-import markdownToPng from "./functions/markdownToPng"
 import NotionRepository from "./repositories/NotionRepository"
 import Tracer from "tracer"
 
@@ -133,7 +132,6 @@ const sync = async () => {
 					case 0:
 						logger.info(`No blocks found, adding both`)
 						await notionRepository.addUnarchiveLink(nr)
-						await markdownToPng(nr)
 						await notionRepository.addImageBlock(nr)
 						break
 					case 1:
@@ -144,14 +142,12 @@ const sync = async () => {
 							}
 
 							logger.info(`Adding image block`)
-							await markdownToPng(nr)
 							await notionRepository.addImageBlock(nr)
 						}
 
 						logger.info(`Single block type was incorrect, adding all blocks`)
 						await notionRepository.deleteBlock(blocks[0]!.id)
 						await notionRepository.addUnarchiveLink(nr)
-						await markdownToPng(nr)
 						await notionRepository.addImageBlock(nr)
 						break
 					default:
@@ -164,7 +160,6 @@ const sync = async () => {
 							if ("type" in blocks[1]! && blocks[1].type === "image") {
 								if (!isImageBlock(blocks[1], nr)) {
 									logger.info(`One invalid image block found, editing it`)
-									await markdownToPng(nr)
 									await notionRepository.editImageBlock(blocks[1].id, nr)
 								} else {
 									const readmeLastEdited =
@@ -174,7 +169,6 @@ const sync = async () => {
 										new Date(blocks[1].last_edited_time).getTime()
 									) {
 										logger.info(`Image block outdated, updating it`)
-										await markdownToPng(nr)
 										await notionRepository.editImageBlock(blocks[1].id, nr)
 									}
 								}
@@ -199,7 +193,6 @@ const sync = async () => {
 							await notionRepository.deleteBlock(block.id)
 						}
 						await notionRepository.addUnarchiveLink(nr)
-						await markdownToPng(nr)
 						await notionRepository.addImageBlock(nr)
 						break
 				}
@@ -207,14 +200,12 @@ const sync = async () => {
 				switch (blocks.length) {
 					case 0:
 						logger.info(`No blocks found, adding image block`)
-						await markdownToPng(nr)
 						await notionRepository.addImageBlock(nr)
 						break
 					default:
 						if ("type" in blocks[0]! && blocks[0].type === "image") {
 							if (!isImageBlock(blocks[0], nr)) {
 								logger.info(`One invalid image block found, editing it`)
-								await markdownToPng(nr)
 								await notionRepository.editImageBlock(blocks[0].id, nr)
 							} else {
 								const readmeLastEdited = await githubRepository.getReadmeLastEdited(
@@ -225,7 +216,6 @@ const sync = async () => {
 									new Date(blocks[0].last_edited_time).getTime()
 								) {
 									logger.info(`Image block outdated, updating it`)
-									await markdownToPng(nr)
 									await notionRepository.editImageBlock(blocks[0].id, nr)
 								}
 							}
@@ -236,7 +226,6 @@ const sync = async () => {
 						for (const block of blocks) {
 							await notionRepository.deleteBlock(block.id)
 						}
-						await markdownToPng(nr)
 						await notionRepository.addImageBlock(nr)
 				}
 			}

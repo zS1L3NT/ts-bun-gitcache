@@ -1,5 +1,6 @@
 import assert from "assert"
 import config from "../config.json"
+import getMarkdownLink from "../functions/getMarkdownLink"
 import { Client as Notion } from "@notionhq/client"
 
 export default class NotionRepository {
@@ -137,7 +138,7 @@ export default class NotionRepository {
 					type: "image",
 					image: {
 						external: {
-							url: `${config.host}/${config.github.owner}/${nr.title}.png`
+							url: await getMarkdownLink(nr)
 						}
 					}
 				}
@@ -151,7 +152,7 @@ export default class NotionRepository {
 			type: "image",
 			image: {
 				external: {
-					url: `${config.host}/${config.github.owner}/${nr.title}.png`
+					url: await getMarkdownLink(nr)
 				}
 			}
 		})

@@ -97,9 +97,9 @@ const sync = async () => {
 				if (gr.lastEdited.getTime() > nr.lastEdited.getTime()) {
 					logger.info(
 						`Updating notion page <${nr.title}>`,
-						diffCalc.formatGithubToNotion()
+						diffCalc.formatNotionToGithub()
 					)
-					notionRepository.updatePage(nr, nr.pageId)
+					notionRepository.updatePage(gr, nr.pageId)
 				} else {
 					if (gr.archived) {
 						logger.warn(`Cannot update archived repository <${gr.title}>`)
@@ -111,7 +111,7 @@ const sync = async () => {
 					} else {
 						logger.info(
 							`Updating github page <${gr.title}>`,
-							diffCalc.formatNotionToGithub()
+							diffCalc.formatGithubToNotion()
 						)
 						githubRepository.updateRepository(diffCalc)
 					}

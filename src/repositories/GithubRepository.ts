@@ -1,6 +1,6 @@
 import config from "../config.json"
 import DiffCalc from "../utils/DiffCalc"
-import pick from "../utils/pick"
+import pick from "../functions/pick"
 import { Octokit as Github } from "@octokit/core"
 
 export default class GithubRepository {

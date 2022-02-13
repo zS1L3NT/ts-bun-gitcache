@@ -6,7 +6,9 @@ import DiffCalc from "./utils/DiffCalc"
 import express from "express"
 import fs from "fs"
 import GithubRepository from "./repositories/GithubRepository"
-import markdownToPng from "./utils/markdownToPng"
+import isImageBlock from "./functions/isImageBlock"
+import isUnarchiveBlock from "./functions/isUnarchiveBlock"
+import markdownToPng from "./functions/markdownToPng"
 import NotionRepository from "./repositories/NotionRepository"
 import Tracer from "tracer"
 
@@ -124,59 +126,119 @@ const sync = async () => {
 		for (let i = 0; i < pageBlocks.length; i++) {
 			const blocks = pageBlocks[i]!.results
 			const nr = nrs[i]!
-			logger.log(`Syncing blocks for ${nr.title}`)
+			logger.log(`Syncing blocks for ${nr.title}`, nr.archived ? `(archived)` : ``)
 
-			// Create new blocks where necessary
-			if (nr.archived && blocks.length === 0) {
-				await notionRepository.addUnarchiveLink(nr)
-				await markdownToPng(nr)
-				await notionRepository.addImageBlock(nr)
-			}
+			if (nr.archived) {
+				switch (blocks.length) {
+					case 0:
+						logger.info(`No blocks found, adding both`)
+						await notionRepository.addUnarchiveLink(nr)
+						await markdownToPng(nr)
+						await notionRepository.addImageBlock(nr)
+						break
+					case 1:
+						if ("type" in blocks[0]! && blocks[0].type === "bookmark") {
+							if (!isUnarchiveBlock(blocks[0], nr)) {
+								logger.info(`One invalid bookmark block found, editing it`)
+								await notionRepository.editUnarchiveLink(blocks[0].id, nr)
+							}
 
-			if ((nr.archived && blocks.length === 1) || (!nr.archived && blocks.length === 0)) {
-				await markdownToPng(nr)
-				await notionRepository.addImageBlock(nr)
-			}
-
-			// Update old blocks where necessary
-			for (let i = 0; i < blocks.length; i++) {
-				const block = blocks[i]!
-				if (!("type" in block)) continue
-
-				if ((!nr.archived && i === 0) || (nr.archived && i === 1)) {
-					if (
-						block.type === "image" &&
-						block.image.type === "external" &&
-						block.image.external.url ===
-							`${config.host}/${config.github.owner}/${nr.title}.png`
-					) {
-						const readmeLastEdited = await githubRepository.getReadmeLastEdited(nr)
-						if (
-							new Date(block.last_edited_time).getTime() > readmeLastEdited.getTime()
-						) {
-							continue
+							logger.info(`Adding image block`)
+							await markdownToPng(nr)
+							await notionRepository.addImageBlock(nr)
 						}
-					}
 
-					await markdownToPng(nr)
-					await notionRepository.editImageBlock(block.id, nr)
+						logger.info(`Single block type was incorrect, adding all blocks`)
+						await notionRepository.deleteBlock(blocks[0]!.id)
+						await notionRepository.addUnarchiveLink(nr)
+						await markdownToPng(nr)
+						await notionRepository.addImageBlock(nr)
+						break
+					default:
+						if ("type" in blocks[0]! && blocks[0].type === "bookmark") {
+							if (!isUnarchiveBlock(blocks[0], nr)) {
+								logger.info(`One invalid bookmark block found, editing it`)
+								await notionRepository.editUnarchiveLink(blocks[0].id, nr)
+							}
+
+							if ("type" in blocks[1]! && blocks[1].type === "image") {
+								if (!isImageBlock(blocks[1], nr)) {
+									logger.info(`One invalid image block found, editing it`)
+									await markdownToPng(nr)
+									await notionRepository.editImageBlock(blocks[1].id, nr)
+								} else {
+									const readmeLastEdited =
+										await githubRepository.getReadmeLastEdited(nr)
+									if (
+										readmeLastEdited.getTime() >
+										new Date(blocks[1].last_edited_time).getTime()
+									) {
+										logger.info(`Image block outdated, updating it`)
+										await markdownToPng(nr)
+										await notionRepository.editImageBlock(blocks[1].id, nr)
+									}
+								}
+							} else {
+								logger.info(`Second block not an image block, replacing it`)
+								await notionRepository.deleteBlock(blocks[1]!.id)
+								await notionRepository.addImageBlock(nr)
+							}
+
+							if (blocks.length > 2) {
+								logger.info(`Deleting all blocks after first two`)
+								for (const block of blocks.slice(2)) {
+									await notionRepository.deleteBlock(block.id)
+								}
+							}
+
+							break
+						}
+
+						logger.info(`First block not a bookmark block, replacing all blocks`)
+						for (const block of blocks) {
+							await notionRepository.deleteBlock(block.id)
+						}
+						await notionRepository.addUnarchiveLink(nr)
+						await markdownToPng(nr)
+						await notionRepository.addImageBlock(nr)
+						break
 				}
+			} else {
+				switch (blocks.length) {
+					case 0:
+						logger.info(`No blocks found, adding image block`)
+						await markdownToPng(nr)
+						await notionRepository.addImageBlock(nr)
+						break
+					default:
+						if ("type" in blocks[0]! && blocks[0].type === "image") {
+							if (!isImageBlock(blocks[0], nr)) {
+								logger.info(`One invalid image block found, editing it`)
+								await markdownToPng(nr)
+								await notionRepository.editImageBlock(blocks[0].id, nr)
+							} else {
+								const readmeLastEdited = await githubRepository.getReadmeLastEdited(
+									nr
+								)
+								if (
+									readmeLastEdited.getTime() >
+									new Date(blocks[0].last_edited_time).getTime()
+								) {
+									logger.info(`Image block outdated, updating it`)
+									await markdownToPng(nr)
+									await notionRepository.editImageBlock(blocks[0].id, nr)
+								}
+							}
+							break
+						}
 
-				if (nr.archived && i === 0) {
-					if (
-						block.type === "bookmark" &&
-						block.bookmark.caption.length === 1 &&
-						block.bookmark.caption[0]!.plain_text === `Unarchive` &&
-						block.bookmark.url ===
-							`https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`
-					) {
-						continue
-					}
-					
-					await notionRepository.editUnarchiveLink(block.id, nr)
+						logger.info(`First block not an image block, replacing all blocks`)
+						for (const block of blocks) {
+							await notionRepository.deleteBlock(block.id)
+						}
+						await markdownToPng(nr)
+						await notionRepository.addImageBlock(nr)
 				}
-
-				await notionRepository.deleteBlock(block.id)
 			}
 		}
 

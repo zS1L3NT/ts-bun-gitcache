@@ -1,4 +1,4 @@
-import pick from "./pick"
+import pick from "../functions/pick"
 
 export default class DiffCalc {
 	public constructor(public gr: Repo, public nr: Repo) {}

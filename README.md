@@ -31,14 +31,7 @@ I have quite a few GitHub repositories that I have been spending my time managin
 
 ## Usage
 
-With `yarn`
-
-```
-$ yarn
-$ yarn dev
-```
-
-With `npm`
+Copy the .env.example file to .env then fill in the file with the correct project credentials.
 
 ```
 $ npm i

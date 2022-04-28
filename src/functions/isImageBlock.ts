@@ -1,5 +1,3 @@
-import config from "../config.json"
-
 export default (
 	block: {
 		image:
@@ -16,4 +14,4 @@ export default (
 	nr: NotionRepo
 ) =>
 	block.image.type === "external" &&
-	block.image.external.url === `${config.host}/${config.github.owner}/${nr.title}.png`
+	block.image.external.url === `${process.env.HOST}/${process.env.GITHUB__OWNER}/${nr.title}.png`

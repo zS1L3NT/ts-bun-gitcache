@@ -1,22 +1,24 @@
 import axios from "axios"
-import config from "../config.json"
 import convertMd from "convert-md"
 import fs from "fs"
-import puppeteer from "puppeteer"
 import { useTryAsync } from "no-try"
+import puppeteer from "puppeteer"
 
 export default async (repo: Repo) => {
 	const [err, res] = await useTryAsync(() =>
 		axios
 			.get(
-				`https://raw.githubusercontent.com/${config.github.owner}/${repo.title}/main/README.md`
+				`https://raw.githubusercontent.com/${process.env.GITHUB__OWNER}/${repo.title}/main/README.md`
 			)
 			.then(res => convertMd(res.data, { type: "html" }))
 	)
 
 	if (err) {
-		fs.copyFileSync("./public/default.png", `./public/${config.github.owner}/${repo.title}.png`)
-		return `${config.host}/${config.github.owner}/${repo.title}.png`
+		fs.copyFileSync(
+			"./public/default.png",
+			`./public/${process.env.GITHUB__OWNER}/${repo.title}.png`
+		)
+		return `${process.env.HOST}/${process.env.GITHUB__OWNER}/${repo.title}.png`
 	}
 
 	const html = res._content
@@ -39,7 +41,7 @@ export default async (repo: Repo) => {
 
 	await page.close()
 	await browser.close()
-	fs.writeFileSync(`./public/${config.github.owner}/${repo.title}.png`, imageBuffer)
+	fs.writeFileSync(`./public/${process.env.GITHUB__OWNER}/${repo.title}.png`, imageBuffer)
 
-	return `${config.host}/${config.github.owner}/${repo.title}.png`
+	return `${process.env.HOST}/${process.env.GITHUB__OWNER}/${repo.title}.png`
 }

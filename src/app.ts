@@ -1,20 +1,22 @@
+import "dotenv/config"
+
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
-import config from "./config.json"
-import DiffCalc from "./utils/DiffCalc"
 import express from "express"
 import fs from "fs"
-import GithubRepository from "./repositories/GithubRepository"
+import Tracer from "tracer"
+
 import isImageBlock from "./functions/isImageBlock"
 import isUnarchiveBlock from "./functions/isUnarchiveBlock"
+import GithubRepository from "./repositories/GithubRepository"
 import NotionRepository from "./repositories/NotionRepository"
-import Tracer from "tracer"
+import DiffCalc from "./utils/DiffCalc"
 
 const PORT = 2348
 const app = express()
 
-fs.mkdirSync(`./public/${config.github.owner}`, { recursive: true })
+fs.mkdirSync(`./public/${process.env.GITHUB__OWNER}`, { recursive: true })
 app.use(express.static("public"))
 
 global.logger = Tracer.colorConsole({

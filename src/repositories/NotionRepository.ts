@@ -1,10 +1,11 @@
 import assert from "assert"
-import config from "../config.json"
-import getMarkdownLink from "../functions/getMarkdownLink"
+
 import { Client as Notion } from "@notionhq/client"
 
+import getMarkdownLink from "../functions/getMarkdownLink"
+
 export default class NotionRepository {
-	private notion: Notion = new Notion({ auth: config.notion.token })
+	private notion: Notion = new Notion({ auth: process.env.NOTION__TOKEN })
 
 	public async getRepositories(): Promise<NotionRepo[]> {
 		const repos: NotionRepo[] = []
@@ -13,7 +14,7 @@ export default class NotionRepository {
 		let startCursor: string | undefined
 		while (hasMore) {
 			const response = await this.notion.databases.query({
-				database_id: config.notion.database_id,
+				database_id: process.env.NOTION__DATABASE_ID,
 				start_cursor: startCursor
 			})
 
@@ -99,7 +100,7 @@ export default class NotionRepository {
 				{
 					type: "bookmark",
 					bookmark: {
-						url: `https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`,
+						url: `https://github.com/${process.env.GITHUB__OWNER}/${nr.title}/settings#danger-zone`,
 						caption: [
 							{
 								text: {
@@ -118,7 +119,7 @@ export default class NotionRepository {
 			block_id: blockId,
 			type: "bookmark",
 			bookmark: {
-				url: `https://github.com/${config.github.owner}/${nr.title}/settings#danger-zone`,
+				url: `https://github.com/${process.env.GITHUB__OWNER}/${nr.title}/settings#danger-zone`,
 				caption: [
 					{
 						text: {
@@ -172,7 +173,7 @@ export default class NotionRepository {
 	public async createPage(repo: Repo): Promise<NotionRepo> {
 		const response = await this.notion.pages.create({
 			parent: {
-				database_id: config.notion.database_id
+				database_id: process.env.NOTION__DATABASE_ID
 			},
 			properties: {
 				ID: {
@@ -211,7 +212,7 @@ export default class NotionRepository {
 					checkbox: repo.private
 				},
 				Link: {
-					url: `https://github.com/${config.github.owner}/${repo.title}`
+					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`
 				}
 			}
 		})
@@ -271,7 +272,7 @@ export default class NotionRepository {
 					checkbox: repo.private
 				},
 				Link: {
-					url: `https://github.com/${config.github.owner}/${repo.title}`
+					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`
 				}
 			}
 		})

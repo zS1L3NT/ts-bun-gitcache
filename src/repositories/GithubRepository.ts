@@ -1,10 +1,10 @@
-import config from "../config.json"
-import DiffCalc from "../utils/DiffCalc"
-import pick from "../functions/pick"
 import { Octokit as Github } from "@octokit/core"
 
+import pick from "../functions/pick"
+import DiffCalc from "../utils/DiffCalc"
+
 export default class GithubRepository {
-	private github: Github = new Github({ auth: config.github.token })
+	private github: Github = new Github({ auth: process.env.GITHUB__TOKEN })
 
 	public async getRepositories(): Promise<Repo[]> {
 		const { data: user } = await this.github.request("GET /user")
@@ -44,7 +44,7 @@ export default class GithubRepository {
 
 		if (updatedKeys.includes("tags")) {
 			await this.github.request("PUT /repos/{owner}/{repo}/topics", {
-				owner: config.github.owner,
+				owner: process.env.GITHUB__OWNER,
 				repo: gr.title,
 				names: nr.tags,
 				mediaType: {
@@ -54,7 +54,7 @@ export default class GithubRepository {
 		}
 
 		await this.github.request("PATCH /repos/{owner}/{repo}", {
-			owner: config.github.owner,
+			owner: process.env.GITHUB__OWNER,
 			repo: gr.title,
 			...pick(
 				nr,
@@ -65,7 +65,7 @@ export default class GithubRepository {
 
 	public async getReadmeLastEdited(repo: Repo): Promise<Date> {
 		const commits = await this.github.request("GET /repos/{owner}/{repo}/commits", {
-			owner: config.github.owner,
+			owner: process.env.GITHUB__OWNER,
 			repo: repo.title,
 			path: "README.md",
 			per_page: 1

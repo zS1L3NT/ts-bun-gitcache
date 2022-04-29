@@ -3,6 +3,7 @@ import "dotenv/config"
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
+import http from "http"
 import Tracer from "tracer"
 
 import isImageBlock from "./functions/isImageBlock"
@@ -140,3 +141,10 @@ const sync = async () => {
 }
 
 AfterEvery(1).minutes(sync)
+
+const PORT = process.env.PORT || 8080
+http.createServer((_, res) => {
+	res.writeHead(200, { "Content-Type": "text/plain" })
+	res.write("GitHub Notion Sync running!")
+	res.end()
+}).listen(PORT, () => console.log(`Server running on PORT ${PORT}`))

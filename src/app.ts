@@ -55,7 +55,7 @@ let syncLock = false
 
 const sync = async () => {
 	if (syncLock) {
-		logger.warn(`Previous sync still ongoing, skipping current sync`)
+		logger.log(`Previous sync still ongoing, skipping current sync`)
 		return
 	}
 
@@ -142,7 +142,7 @@ const sync = async () => {
 			}
 		}
 
-		console.log("Syncing complete\n")
+		logger.log("Syncing complete\n")
 	} catch (err) {
 		logger.error(err)
 	}

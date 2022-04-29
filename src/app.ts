@@ -94,30 +94,12 @@ const sync = async () => {
 			const nr = nrs.find(nr => nr.id === gr.id)!
 
 			const diffCalc = new DiffCalc(gr, nr)
-
-			if (diffCalc.getUpdatedKeys().length > 0) {
-				if (gr.lastEdited.getTime() > nr.lastEdited.getTime()) {
-					logger.info(
-						`Updating notion page <${nr.title}>`,
-						diffCalc.formatNotionToGithub()
-					)
-					notionRepository.updatePage(gr, nr.pageId)
-				} else {
-					if (gr.archived) {
-						logger.warn(`Cannot update archived repository <${gr.title}>`)
-						logger.info(
-							`Updating notion page <${nr.title}>`,
-							diffCalc.formatNotionToGithub()
-						)
-						notionRepository.updatePage(gr, nr.pageId)
-					} else {
-						logger.info(
-							`Updating github page <${gr.title}>`,
-							diffCalc.formatGithubToNotion()
-						)
-						githubRepository.updateRepository(diffCalc)
-					}
-				}
+			if (
+				diffCalc.getUpdatedKeys().length > 0 &&
+				gr.lastEdited.getTime() > nr.lastEdited.getTime()
+			) {
+				logger.info(`Updating notion page <${nr.title}>`, diffCalc.formatNotionToGithub())
+				notionRepository.updatePage(gr, nr.pageId)
 			}
 		}
 

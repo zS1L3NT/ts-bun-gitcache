@@ -36,14 +36,6 @@ export default class DiffCalc {
 		return updated
 	}
 
-	public formatGithubToNotion() {
-		const updated = this.getUpdatedKeys()
-		return {
-			from: pick(this.gr, updated),
-			to: pick(this.nr, updated)
-		}
-	}
-
 	public formatNotionToGithub() {
 		const updated = this.getUpdatedKeys()
 		return {

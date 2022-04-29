@@ -1,8 +1,5 @@
 import { Octokit as Github } from "@octokit/core"
 
-import pick from "../functions/pick"
-import DiffCalc from "../utils/DiffCalc"
-
 export default class GithubRepository {
 	private github: Github = new Github({ auth: process.env.GITHUB__TOKEN })
 
@@ -36,31 +33,6 @@ export default class GithubRepository {
 		}
 
 		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
-	}
-
-	public async updateRepository(diffCalc: DiffCalc) {
-		const { gr, nr } = diffCalc
-		const updatedKeys = diffCalc.getUpdatedKeys()
-
-		if (updatedKeys.includes("tags")) {
-			await this.github.request("PUT /repos/{owner}/{repo}/topics", {
-				owner: process.env.GITHUB__OWNER,
-				repo: gr.title,
-				names: nr.tags,
-				mediaType: {
-					previews: ["mercy"]
-				}
-			})
-		}
-
-		await this.github.request("PATCH /repos/{owner}/{repo}", {
-			owner: process.env.GITHUB__OWNER,
-			repo: gr.title,
-			...pick(
-				nr,
-				updatedKeys.filter(k => k !== "tags")
-			)
-		})
 	}
 
 	public async getReadmeLastEdited(repo: Repo): Promise<Date> {

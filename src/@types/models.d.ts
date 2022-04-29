@@ -1,6 +1,5 @@
 interface Repo {
 	id: number
-	lastEdited: Date
 	title: string
 	description: string
 	homepage: string

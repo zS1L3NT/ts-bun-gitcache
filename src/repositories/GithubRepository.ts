@@ -20,7 +20,6 @@ export default class GithubRepository {
 				if (!repo.fork) {
 					repos.push({
 						id: repo.id,
-						lastEdited: repo.updated_at ? new Date(repo.updated_at) : new Date(),
 						title: repo.name,
 						description: repo.description || "",
 						homepage: repo.homepage || "",

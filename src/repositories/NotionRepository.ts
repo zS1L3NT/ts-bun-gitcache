@@ -22,7 +22,6 @@ export default class NotionRepository {
 				if ("properties" in page) {
 					const repo: NotionRepo = {
 						id: -1,
-						lastEdited: new Date(page.last_edited_time),
 						title: "",
 						description: "",
 						homepage: "",
@@ -39,7 +38,16 @@ export default class NotionRepository {
 					}
 
 					if (page.properties.Name && page.properties.Name.type === "title") {
-						repo.title = page.properties.Name.title[0]?.plain_text || ""
+						const title = page.properties.Name.title[0]?.plain_text || ""
+						repo.title = title.split(" ").at(0)!
+
+						if (title.includes("🔒")) {
+							repo.private = true
+						}
+
+						if (title.includes("📂")) {
+							repo.archived = true
+						}
 					} else {
 						throw new Error("Cannot get notion page title")
 					}
@@ -64,18 +72,6 @@ export default class NotionRepository {
 						repo.tags = page.properties.Tags.multi_select.map(t => t.name)
 					} else {
 						throw new Error("Cannot get notion page tags")
-					}
-
-					if (page.properties.Archived && page.properties.Archived.type === "checkbox") {
-						repo.archived = page.properties.Archived.checkbox
-					} else {
-						throw new Error("Cannot get notion page archived")
-					}
-
-					if (page.properties.Private && page.properties.Private.type === "checkbox") {
-						repo.private = page.properties.Private.checkbox
-					} else {
-						throw new Error("Cannot get notion page privated")
 					}
 
 					repos.push(repo)
@@ -132,6 +128,19 @@ export default class NotionRepository {
 		})
 	}
 
+	private getTitleWithEmojis(repo: Repo) {
+		let title = repo.title
+		if (repo.private && repo.archived) {
+			title += " 🔒📂"
+		} else if (repo.private) {
+			title += " 🔒"
+		} else if (repo.archived) {
+			title += " 📂"
+		}
+
+		return title
+	}
+
 	public async createPage(repo: Repo): Promise<NotionRepo> {
 		const response = await this.notion.pages.create({
 			parent: {
@@ -145,7 +154,7 @@ export default class NotionRepository {
 					title: [
 						{
 							text: {
-								content: repo.title
+								content: this.getTitleWithEmojis(repo)
 							}
 						}
 					]
@@ -166,12 +175,6 @@ export default class NotionRepository {
 					multi_select: repo.tags.map(t => ({
 						name: t
 					}))
-				},
-				Archived: {
-					checkbox: repo.archived
-				},
-				Private: {
-					checkbox: repo.private
 				},
 				Link: {
 					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`
@@ -205,7 +208,7 @@ export default class NotionRepository {
 					title: [
 						{
 							text: {
-								content: repo.title
+								content: this.getTitleWithEmojis(repo)
 							}
 						}
 					]
@@ -226,12 +229,6 @@ export default class NotionRepository {
 					multi_select: repo.tags.map(t => ({
 						name: t
 					}))
-				},
-				Archived: {
-					checkbox: repo.archived
-				},
-				Private: {
-					checkbox: repo.private
 				},
 				Link: {
 					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`

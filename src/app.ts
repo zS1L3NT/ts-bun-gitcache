@@ -93,10 +93,7 @@ const sync = async () => {
 			const nr = nrs.find(nr => nr.id === gr.id)!
 
 			const diffCalc = new DiffCalc(gr, nr)
-			if (
-				diffCalc.getUpdatedKeys().length > 0 &&
-				gr.lastEdited.getTime() > nr.lastEdited.getTime()
-			) {
+			if (diffCalc.getUpdatedKeys().length > 0) {
 				logger.info(`Updating notion page <${nr.title}>`, diffCalc.formatNotionToGithub())
 				notionRepository.updatePage(gr, nr.pageId)
 			}

@@ -29,9 +29,7 @@ export default async (repo: Repo) => {
 		.replace("background-color: white", "background-color: 2f3437")
 
 	const browser = await puppeteer.launch(
-		process.platform === "linux"
-			? { args: ["--no-sandbox", "--disable-setuid-sandbox"] }
-			: undefined
+		process.env.PORT ? { args: ["--no-sandbox"] } : undefined
 	)
 	const page = await browser.newPage()
 

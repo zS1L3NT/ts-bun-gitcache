@@ -3,18 +3,12 @@ import "dotenv/config"
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
-import express from "express"
 import Tracer from "tracer"
 
 import isImageBlock from "./functions/isImageBlock"
 import GithubRepository from "./repositories/GithubRepository"
 import NotionRepository from "./repositories/NotionRepository"
 import DiffCalc from "./utils/DiffCalc"
-
-const PORT = 2348
-const app = express()
-
-app.use(express.static("public"))
 
 global.logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
@@ -146,5 +140,3 @@ const sync = async () => {
 }
 
 AfterEvery(1).minutes(sync)
-
-app.listen(PORT, () => console.log(`Server running on PORT ${PORT}`))

@@ -14,4 +14,4 @@ export default (
 	nr: NotionRepo
 ) =>
 	block.image.type === "external" &&
-	block.image.external.url === `${process.env.HOST}/${process.env.GITHUB__OWNER}/${nr.title}.png`
+	block.image.external.url === `${process.env.CLOUDINARY_FOLDER}/${nr.title}.png`

@@ -4,7 +4,6 @@ import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
 import express from "express"
-import fs from "fs"
 import Tracer from "tracer"
 
 import isImageBlock from "./functions/isImageBlock"
@@ -15,7 +14,6 @@ import DiffCalc from "./utils/DiffCalc"
 const PORT = 2348
 const app = express()
 
-fs.mkdirSync(`./public/${process.env.GITHUB__OWNER}`, { recursive: true })
 app.use(express.static("public"))
 
 global.logger = Tracer.colorConsole({
@@ -114,7 +112,7 @@ const sync = async () => {
 				default:
 					if ("type" in blocks[0]! && blocks[0].type === "image") {
 						if (!isImageBlock(blocks[0], nr)) {
-							logger.info(`One invalid image block found, editing it <${nr.title}>`)
+							logger.info(`Invalid image block found, editing it <${nr.title}>`)
 							await notionRepository.editImageBlock(blocks[0].id, nr)
 						} else {
 							const readmeLastEdited = await githubRepository.getReadmeLastEdited(nr)

@@ -1,8 +1,10 @@
 import axios from "axios"
+import { v2 as cloudinary } from "cloudinary"
 import convertMd from "convert-md"
-import fs from "fs"
 import { useTryAsync } from "no-try"
 import puppeteer from "puppeteer"
+import StreamPromises from "stream/promises"
+import streamifier from "streamifier"
 
 export default async (repo: Repo) => {
 	const [err, res] = await useTryAsync(() =>
@@ -14,11 +16,10 @@ export default async (repo: Repo) => {
 	)
 
 	if (err) {
-		fs.copyFileSync(
-			"./public/default.png",
-			`./public/${process.env.GITHUB__OWNER}/${repo.title}.png`
-		)
-		return `${process.env.HOST}/${process.env.GITHUB__OWNER}/${repo.title}.png`
+		await cloudinary.uploader.upload(`src/default.png`, {
+			public_id: `ts-github-notion-sync/${repo.title}`
+		})
+		return `${process.env.CLOUDINARY_FOLDER}/${repo.title}.png`
 	}
 
 	const html = res._content
@@ -41,7 +42,14 @@ export default async (repo: Repo) => {
 
 	await page.close()
 	await browser.close()
-	fs.writeFileSync(`./public/${process.env.GITHUB__OWNER}/${repo.title}.png`, imageBuffer)
+	await StreamPromises.pipeline(
+		streamifier.createReadStream(imageBuffer),
+		cloudinary.uploader.upload_stream({
+			resource_type: "image",
+			format: "png",
+			public_id: `ts-github-notion-sync/${repo.title}`
+		})
+	)
 
-	return `${process.env.HOST}/${process.env.GITHUB__OWNER}/${repo.title}.png`
+	return `${process.env.CLOUDINARY_FOLDER}/${repo.title}.png`
 }

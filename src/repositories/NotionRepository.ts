@@ -93,44 +93,6 @@ export default class NotionRepository {
 		return await this.notion.blocks.children.list({ block_id: nr.pageId })
 	}
 
-	public async addUnarchiveLink(nr: NotionRepo) {
-		return await this.notion.blocks.children.append({
-			block_id: nr.pageId,
-			children: [
-				{
-					type: "bookmark",
-					bookmark: {
-						url: `https://github.com/${process.env.GITHUB__OWNER}/${nr.title}/settings#danger-zone`,
-						caption: [
-							{
-								text: {
-									content: "Unarchive"
-								}
-							}
-						]
-					}
-				}
-			]
-		})
-	}
-
-	public async editUnarchiveLink(blockId: string, nr: NotionRepo) {
-		return await this.notion.blocks.update({
-			block_id: blockId,
-			type: "bookmark",
-			bookmark: {
-				url: `https://github.com/${process.env.GITHUB__OWNER}/${nr.title}/settings#danger-zone`,
-				caption: [
-					{
-						text: {
-							content: "Unarchive"
-						}
-					}
-				]
-			}
-		})
-	}
-
 	public async addImageBlock(nr: NotionRepo) {
 		return await this.notion.blocks.children.append({
 			block_id: nr.pageId,

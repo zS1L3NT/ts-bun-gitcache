@@ -4,6 +4,7 @@ interface Repo {
 	description: string
 	homepage: string
 	tags: string[]
+	readme: boolean
 	archived: boolean
 	private: boolean
 }

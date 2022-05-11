@@ -24,6 +24,7 @@ export default class NotionRepository {
 						description: "",
 						homepage: "",
 						tags: [],
+						readme: true,
 						archived: false,
 						private: false,
 						pageId: page.id
@@ -45,6 +46,10 @@ export default class NotionRepository {
 
 						if (title.includes("📂")) {
 							repo.archived = true
+						}
+
+						if (title.includes("⁉️")) {
+							repo.readme = false
 						}
 					} else {
 						throw new Error("Cannot get notion page title")
@@ -92,12 +97,20 @@ export default class NotionRepository {
 
 	private getTitleWithEmojis(repo: Repo) {
 		let title = repo.title
-		if (repo.private && repo.archived) {
-			title += " 🔒📂"
-		} else if (repo.private) {
-			title += " 🔒"
-		} else if (repo.archived) {
-			title += " 📂"
+		if (!repo.readme || repo.private || repo.archived) {
+			title += " "
+
+			if (!repo.readme) {
+				title += "⁉️"
+			}
+
+			if (repo.private) {
+				title += "🔒"
+			}
+
+			if (repo.archived) {
+				title += "📂"
+			}
 		}
 
 		return title

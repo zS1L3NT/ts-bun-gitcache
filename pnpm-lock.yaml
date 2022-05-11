@@ -4,8 +4,10 @@ specifiers:
   '@notionhq/client': ^1.0.4
   '@octokit/core': ^3.6.0
   after-every: ^1.0.4
+  axios: ^0.27.2
   colors: ^1.4.0
   dotenv: ^16.0.0
+  no-try: ^3.1.0
   tracer: ^1.1.5
   typescript: ^4.6.4
 
@@ -13,8 +15,10 @@ dependencies:
   '@notionhq/client': 1.0.4
   '@octokit/core': 3.6.0
   after-every: 1.0.4
+  axios: 0.27.2
   colors: 1.4.0
   dotenv: 16.0.0
+  no-try: 3.1.0
   tracer: 1.1.5
 
 devDependencies:
@@ -120,6 +124,15 @@ packages:
     resolution: {integrity: sha1-x57Zf380y48robyXkLzDZkdLS3k=}
     dev: false
 
+  /axios/0.27.2:
+    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+    dependencies:
+      follow-redirects: 1.15.0
+      form-data: 4.0.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /before-after-hook/2.2.2:
     resolution: {integrity: sha512-3pZEU3NT5BFUo/AD5ERPWOgQOCZITni6iavr5AUw5AUwQjMlI0kzu5btnyD39AF0gUEsDPwJT+oY1ORBJijPjQ==}
     dev: false
@@ -154,8 +167,27 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /follow-redirects/1.15.0:
+    resolution: {integrity: sha512-aExlJShTV4qOUOL7yF1U5tvLCB0xQuudbf6toyYA0E/acBNw71mvjFTnLaRp50aQaYocMR0a/RMMBIHeZnGyjQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /form-data/3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
+
+  /form-data/4.0.0:
+    resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
@@ -184,6 +216,10 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+    dev: false
+
+  /no-try/3.1.0:
+    resolution: {integrity: sha512-4QyjqXvAcbjqEiV5fj8a6ZW/8VWx7SVq0qI2WhbgQ+XgnQ3vMa6zRw99x0pIG6Rgwv1uavlBJq/dP5DNMSzuiw==}
     dev: false
 
   /node-fetch/2.6.7:

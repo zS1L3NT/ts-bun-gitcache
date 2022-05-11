@@ -13,8 +13,10 @@
 		"@notionhq/client": "^1.0.4",
 		"@octokit/core": "^3.6.0",
 		"after-every": "^1.0.4",
+		"axios": "^0.27.2",
 		"colors": "^1.4.0",
 		"dotenv": "^16.0.0",
+		"no-try": "^3.1.0",
 		"tracer": "^1.1.5"
 	},
 	"devDependencies": {

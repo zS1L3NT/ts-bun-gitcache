@@ -1,3 +1,6 @@
+import axios from "axios"
+import { useTryAsync } from "no-try"
+
 import { Octokit as Github } from "@octokit/core"
 
 export default class GithubRepository {
@@ -7,7 +10,7 @@ export default class GithubRepository {
 		const { data: user } = await this.github.request("GET /user")
 		const repoCount = user.public_repos + (user.total_private_repos || 0)
 
-		const repos: Repo[] = []
+		const repos: Promise<Repo>[] = []
 
 		for (let i = 0; i < repoCount; i += 100) {
 			const response = await this.github.request("GET /user/repos", {
@@ -16,21 +19,32 @@ export default class GithubRepository {
 				per_page: 100
 			})
 
-			for (const repo of response.data) {
-				if (!repo.fork) {
-					repos.push({
-						id: repo.id,
-						title: repo.name,
-						description: repo.description || "",
-						homepage: repo.homepage || "",
-						tags: repo.topics || [],
-						archived: repo.archived,
-						private: repo.private
+			repos.push(
+				...response.data
+					.filter(repo => !repo.fork)
+					.map(async repo => {
+						const [err, readme] = await useTryAsync(() =>
+							axios.get(
+								`https://raw.githubusercontent.com/${process.env.GITHUB__OWNER}/${repo.name}/main/README.md`
+							)
+						)
+
+						return {
+							id: repo.id,
+							title: repo.name,
+							description: repo.description || "",
+							homepage: repo.homepage || "",
+							tags: repo.topics || [],
+							readme: err ? false : readme.data.indexOf("![License]") > -1,
+							archived: repo.archived,
+							private: repo.private
+						}
 					})
-				}
-			}
+			)
 		}
 
-		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
+		return (await Promise.all(repos)).sort((a, b) =>
+			new Intl.Collator().compare(a.title, b.title)
+		)
 	}
 }

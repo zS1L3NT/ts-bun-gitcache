@@ -19,7 +19,6 @@ I have quite a few GitHub repositories that I have been spending my time managin
     -   Archived
     -   Private
 -   Runs the sync every minute at 0s
--   Syncs the README file of the repository to each Notion page
 
 ## Usage
 
@@ -33,22 +32,13 @@ $ npm run dev
 ## Built with
 
 -   TypeScript
-    -   [![@types/streamifier](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/dev/@types/streamifier?style=flat-square)](https://npmjs.com/package/@types/streamifier)
     -   [![typescript](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/dev/typescript?style=flat-square)](https://npmjs.com/package/typescript)
 -   Notion
     -   [![@notionhq/client](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/@notionhq/client?style=flat-square)](https://npmjs.com/package/@notionhq/client)
 -   Github
     -   [![@octokit/core](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/@octokit/core?style=flat-square)](https://npmjs.com/package/@octokit/core)
--   File Converters
-    -   [![convert-md](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/convert-md?style=flat-square)](https://npmjs.com/package/convert-md)
-    -   [![puppeteer](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/puppeteer?style=flat-square)](https://npmjs.com/package/puppeteer)
--	File Uploading
-    -   [![cloudinary](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/cloudinary?style=flat-square)](https://npmjs.com/package/cloudinary)
-    -   [![streamifier](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/streamifier?style=flat-square)](https://npmjs.com/package/streamifier)
 -   Miscellaneous
     -   [![after-every](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/after-every?style=flat-square)](https://npmjs.com/package/after-every)
-    -   [![axios](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/axios?style=flat-square)](https://npmjs.com/package/axios)
     -   [![colors](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/colors?style=flat-square)](https://npmjs.com/package/colors)
     -   [![dotenv](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/dotenv?style=flat-square)](https://npmjs.com/package/dotenv)
-    -   [![no-try](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/no-try?style=flat-square)](https://npmjs.com/package/no-try)
     -   [![tracer](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/ts-github-notion-sync/tracer?style=flat-square)](https://npmjs.com/package/tracer)

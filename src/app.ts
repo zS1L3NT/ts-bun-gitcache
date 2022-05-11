@@ -6,7 +6,6 @@ import colors from "colors"
 import http from "http"
 import Tracer from "tracer"
 
-import isImageBlock from "./functions/isImageBlock"
 import GithubRepository from "./repositories/GithubRepository"
 import NotionRepository from "./repositories/NotionRepository"
 import DiffCalc from "./utils/DiffCalc"
@@ -89,46 +88,6 @@ const sync = async () => {
 			if (diffCalc.getUpdatedKeys().length > 0) {
 				logger.info(`Updating notion page <${nr.title}>`, diffCalc.formatNotionToGithub())
 				notionRepository.updatePage(gr, nr.pageId)
-			}
-		}
-
-		logger.log(`Fetching Notion Page Blocks`)
-		const pageBlocks = await Promise.all(nrs.map(nr => notionRepository.getBlocks(nr)))
-
-		for (let i = 0; i < pageBlocks.length; i++) {
-			const blocks = pageBlocks[i]!.results
-			const nr = nrs[i]!
-
-			switch (blocks.length) {
-				case 0:
-					logger.info(`No blocks found, adding image block <${nr.title}>`)
-					await notionRepository.addImageBlock(nr)
-					break
-				default:
-					if ("type" in blocks[0]! && blocks[0].type === "image") {
-						if (!isImageBlock(blocks[0], nr)) {
-							logger.info(`Invalid image block found, editing it <${nr.title}>`)
-							await notionRepository.editImageBlock(blocks[0].id, nr)
-						} else {
-							const readmeLastEdited = await githubRepository.getReadmeLastEdited(nr)
-							if (
-								readmeLastEdited.getTime() >
-								new Date(blocks[0].last_edited_time).getTime()
-							) {
-								logger.info(`Image block outdated, updating it <${nr.title}>`)
-								await notionRepository.editImageBlock(blocks[0].id, nr)
-							}
-						}
-						break
-					}
-
-					logger.info(
-						`First block not an image block, replacing all blocks <${nr.title}>`
-					)
-					for (const block of blocks) {
-						await notionRepository.deleteBlock(block.id)
-					}
-					await notionRepository.addImageBlock(nr)
 			}
 		}
 

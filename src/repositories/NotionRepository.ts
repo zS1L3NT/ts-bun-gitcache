@@ -2,8 +2,6 @@ import assert from "assert"
 
 import { Client as Notion } from "@notionhq/client"
 
-import getMarkdownLink from "../functions/getMarkdownLink"
-
 export default class NotionRepository {
 	private notion: Notion = new Notion({ auth: process.env.NOTION__TOKEN })
 
@@ -83,42 +81,6 @@ export default class NotionRepository {
 		}
 
 		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
-	}
-
-	public async getBlocks(nr: NotionRepo) {
-		return await this.notion.blocks.children.list({ block_id: nr.pageId })
-	}
-
-	public async addImageBlock(nr: NotionRepo) {
-		return await this.notion.blocks.children.append({
-			block_id: nr.pageId,
-			children: [
-				{
-					type: "image",
-					image: {
-						external: {
-							url: await getMarkdownLink(nr)
-						}
-					}
-				}
-			]
-		})
-	}
-
-	public async editImageBlock(blockId: string, nr: NotionRepo) {
-		return await this.notion.blocks.update({
-			block_id: blockId,
-			type: "image",
-			image: {
-				external: {
-					url: await getMarkdownLink(nr)
-				}
-			}
-		})
-	}
-
-	public async deleteBlock(blockId: string) {
-		return await this.notion.blocks.delete({ block_id: blockId })
 	}
 
 	public async deletePage(pageId: string) {

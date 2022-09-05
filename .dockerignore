@@ -1,0 +1,7 @@
+/node_modules
+.editorconfig
+.env.example
+.gitignore
+.prettierrc
+LICENCE
+README.md

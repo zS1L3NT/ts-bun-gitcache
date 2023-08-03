@@ -5,4 +5,4 @@
 
 */
 -- AlterTable
-ALTER TABLE "Project" ADD COLUMN     "updated_at" STRING NOT NULL;
+ALTER TABLE "Project" ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL;

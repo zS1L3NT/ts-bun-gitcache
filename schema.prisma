@@ -14,5 +14,5 @@ model Project {
     name        String   @id
     description String
     topics      String[]
-    updated_at  String
+    updated_at  DateTime
 }

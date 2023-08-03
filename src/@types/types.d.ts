@@ -10,7 +10,7 @@ interface Repo {
 }
 
 interface GithubRepo extends Repo {
-	updatedAt: string
+	updatedAt: Date
 }
 
 interface NotionRepo extends Repo {

@@ -38,7 +38,7 @@ export default class GithubRepository {
 							readme: err ? false : readme.data.indexOf("![License]") > -1,
 							archived: repo.archived,
 							private: repo.private,
-							updatedAt: repo.pushed_at || repo.updated_at || repo.created_at || new Date().toISOString(),
+							updatedAt: new Date(repo.pushed_at || repo.updated_at || repo.created_at || 0),
 						}
 					}),
 			)

@@ -1,4 +1,5 @@
 import "dotenv/config"
+import { PrismaClient } from "@prisma/client"
 
 import AfterEvery from "after-every"
 import assert from "assert"
@@ -15,7 +16,6 @@ global.logger = Tracer.colorConsole({
 	format: [
 		"[{{timestamp}}] <{{path}}> {{message}}",
 		{
-			//@ts-ignore
 			alert: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
 			warn: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
 			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}"
@@ -27,7 +27,6 @@ global.logger = Tracer.colorConsole({
 		log: colors.grey,
 		debug: colors.blue,
 		info: colors.green,
-		//@ts-ignore
 		alert: colors.yellow,
 		warn: colors.yellow.bold.italic,
 		error: colors.red.bold.italic
@@ -43,6 +42,7 @@ global.logger = Tracer.colorConsole({
 
 const githubRepository = new GithubRepository()
 const notionRepository = new NotionRepository()
+const prisma = new PrismaClient()
 let syncLock = false
 
 const sync = async () => {
@@ -91,12 +91,22 @@ const sync = async () => {
 			}
 		}
 
+		prisma.$transaction(
+			grs.map(gr => 
+				prisma.project.upsert({
+					where: { name: gr.title },
+					create: { name: gr.title, description: gr.description, topics: gr.tags },
+					update: { name: gr.title, description: gr.description, topics: gr.tags },
+				})
+			)
+		)
+
 		logger.log("Syncing complete\n")
 	} catch (err) {
 		logger.error(err)
+	} finally {
+		syncLock = false
 	}
-
-	syncLock = false
 }
 
 AfterEvery(1).minutes(sync)

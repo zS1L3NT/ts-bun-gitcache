@@ -6,11 +6,11 @@ import { Octokit as Github } from "@octokit/core"
 export default class GithubRepository {
 	private github: Github = new Github({ auth: process.env.GITHUB__TOKEN })
 
-	public async getRepositories(): Promise<Repo[]> {
+	public async getRepositories(): Promise<GithubRepo[]> {
 		const { data: user } = await this.github.request("GET /user")
 		const repoCount = user.public_repos + (user.total_private_repos || 0)
 
-		const repos: Promise<Repo>[] = []
+		const repos: Promise<GithubRepo>[] = []
 
 		for (let i = 0; i < repoCount; i += 100) {
 			const response = await this.github.request("GET /user/repos", {
@@ -38,6 +38,7 @@ export default class GithubRepository {
 							readme: err ? false : readme.data.indexOf("![License]") > -1,
 							archived: repo.archived,
 							private: repo.private,
+							updatedAt: repo.pushed_at || repo.updated_at || repo.created_at || new Date().toISOString(),
 						}
 					}),
 			)

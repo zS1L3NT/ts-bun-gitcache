@@ -9,6 +9,10 @@ interface Repo {
 	private: boolean
 }
 
+interface GithubRepo extends Repo {
+	updatedAt: string
+}
+
 interface NotionRepo extends Repo {
 	pageId: string
 }

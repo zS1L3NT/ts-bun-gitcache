@@ -96,8 +96,8 @@ const sync = async () => {
 			grs.map(gr =>
 				prisma.project.upsert({
 					where: { name: gr.title },
-					create: { name: gr.title, description: gr.description, topics: gr.tags },
-					update: { name: gr.title, description: gr.description, topics: gr.tags },
+					create: { name: gr.title, description: gr.description, topics: gr.tags, updated_at: gr.updatedAt },
+					update: { name: gr.title, description: gr.description, topics: gr.tags, updated_at: gr.updatedAt },
 				}),
 			),
 		)

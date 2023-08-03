@@ -16,7 +16,7 @@ export default class GithubRepository {
 			const response = await this.github.request("GET /user/repos", {
 				type: "owner",
 				page: Math.floor(i / 100) + 1,
-				per_page: 100
+				per_page: 100,
 			})
 
 			repos.push(
@@ -25,8 +25,8 @@ export default class GithubRepository {
 					.map(async repo => {
 						const [err, readme] = await useTryAsync(() =>
 							axios.get(
-								`https://raw.githubusercontent.com/${process.env.GITHUB__OWNER}/${repo.name}/main/README.md`
-							)
+								`https://raw.githubusercontent.com/${process.env.GITHUB__OWNER}/${repo.name}/main/README.md`,
+							),
 						)
 
 						return {
@@ -37,14 +37,14 @@ export default class GithubRepository {
 							tags: repo.topics || [],
 							readme: err ? false : readme.data.indexOf("![License]") > -1,
 							archived: repo.archived,
-							private: repo.private
+							private: repo.private,
 						}
-					})
+					}),
 			)
 		}
 
 		return (await Promise.all(repos)).sort((a, b) =>
-			new Intl.Collator().compare(a.title, b.title)
+			new Intl.Collator().compare(a.title, b.title),
 		)
 	}
 }

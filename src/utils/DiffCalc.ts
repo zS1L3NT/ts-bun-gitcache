@@ -1,7 +1,10 @@
 import pick from "../functions/pick"
 
 export default class DiffCalc {
-	public constructor(public gr: Repo, public nr: Repo) {}
+	public constructor(
+		public gr: Repo,
+		public nr: Repo,
+	) {}
 
 	public getUpdatedKeys(): (keyof Repo)[] {
 		const updated: (keyof Repo)[] = []
@@ -40,7 +43,7 @@ export default class DiffCalc {
 		const updated = this.getUpdatedKeys()
 		return {
 			from: pick(this.nr, updated),
-			to: pick(this.gr, updated)
+			to: pick(this.gr, updated),
 		}
 	}
 }

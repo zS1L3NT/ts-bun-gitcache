@@ -1,15 +1,16 @@
-import "dotenv/config"
-import { PrismaClient } from "@prisma/client"
-
 import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
 import http from "http"
 import Tracer from "tracer"
 
+import { PrismaClient } from "@prisma/client"
+
 import GithubRepository from "./repositories/GithubRepository"
 import NotionRepository from "./repositories/NotionRepository"
 import DiffCalc from "./utils/DiffCalc"
+
+import "dotenv/config"
 
 global.logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
@@ -18,8 +19,8 @@ global.logger = Tracer.colorConsole({
 		{
 			alert: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
 			warn: "[{{timestamp}}] <{{path}}, Line {{line}}> {{message}}",
-			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}"
-		}
+			error: "[{{timestamp}}] <{{path}}, Line {{line}} at {{pos}}> {{message}}",
+		},
 	],
 	methods: ["log", "debug", "info", "alert", "warn", "error"],
 	dateformat: "dd mmm yyyy, hh:MM:sstt",
@@ -29,7 +30,7 @@ global.logger = Tracer.colorConsole({
 		info: colors.green,
 		alert: colors.yellow,
 		warn: colors.yellow.bold.italic,
-		error: colors.red.bold.italic
+		error: colors.red.bold.italic,
 	},
 	preprocess: data => {
 		data.path = data.path
@@ -37,7 +38,7 @@ global.logger = Tracer.colorConsole({
 			.at(-1)!
 			.replace(/^(\/|\\)(dist|src)/, "src")
 			.replaceAll("\\", "/")
-	}
+	},
 })
 
 const githubRepository = new GithubRepository()
@@ -67,7 +68,7 @@ const sync = async () => {
 				await notionRepository.deletePage(nr.pageId)
 				nrs.splice(
 					nrs.findIndex(r => r.id === nr.id),
-					1
+					1,
 				)
 			}
 		}
@@ -92,13 +93,13 @@ const sync = async () => {
 		}
 
 		prisma.$transaction(
-			grs.map(gr => 
+			grs.map(gr =>
 				prisma.project.upsert({
 					where: { name: gr.title },
 					create: { name: gr.title, description: gr.description, topics: gr.tags },
 					update: { name: gr.title, description: gr.description, topics: gr.tags },
-				})
-			)
+				}),
+			),
 		)
 
 		logger.log("Syncing complete\n")

@@ -13,7 +13,7 @@ export default class NotionRepository {
 		while (hasMore) {
 			const response = await this.notion.databases.query({
 				database_id: process.env.NOTION__DATABASE_ID,
-				start_cursor: startCursor
+				start_cursor: startCursor,
 			})
 
 			for (const page of response.results) {
@@ -27,7 +27,7 @@ export default class NotionRepository {
 						readme: true,
 						archived: false,
 						private: false,
-						pageId: page.id
+						pageId: page.id,
 					}
 
 					if (page.properties.ID && page.properties.ID.type === "number") {
@@ -91,7 +91,7 @@ export default class NotionRepository {
 	public async deletePage(pageId: string) {
 		await this.notion.pages.update({
 			page_id: pageId,
-			archived: true
+			archived: true,
 		})
 	}
 
@@ -119,56 +119,56 @@ export default class NotionRepository {
 	public async createPage(repo: Repo): Promise<NotionRepo> {
 		const response = await this.notion.pages.create({
 			parent: {
-				database_id: process.env.NOTION__DATABASE_ID
+				database_id: process.env.NOTION__DATABASE_ID,
 			},
 			properties: {
 				ID: {
-					number: repo.id
+					number: repo.id,
 				},
 				Name: {
 					title: [
 						{
 							text: {
-								content: this.getTitleWithEmojis(repo)
-							}
-						}
-					]
+								content: this.getTitleWithEmojis(repo),
+							},
+						},
+					],
 				},
 				Description: {
 					rich_text: [
 						{
 							text: {
-								content: repo.description
-							}
-						}
-					]
+								content: repo.description,
+							},
+						},
+					],
 				},
 				Homepage: {
-					url: repo.homepage || null
+					url: repo.homepage || null,
 				},
 				Tags: {
 					multi_select: repo.tags.map(t => ({
-						name: t
-					}))
+						name: t,
+					})),
 				},
 				Link: {
-					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`
-				}
-			}
+					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`,
+				},
+			},
 		})
 
 		assert("parent" in response)
 		if ("page_id" in response.parent) {
 			return {
 				...repo,
-				pageId: response.parent.page_id
+				pageId: response.parent.page_id,
 			}
 		}
 
 		if ("database_id" in response.parent) {
 			return {
 				...repo,
-				pageId: response.parent.database_id
+				pageId: response.parent.database_id,
 			}
 		}
 
@@ -183,32 +183,32 @@ export default class NotionRepository {
 					title: [
 						{
 							text: {
-								content: this.getTitleWithEmojis(repo)
-							}
-						}
-					]
+								content: this.getTitleWithEmojis(repo),
+							},
+						},
+					],
 				},
 				Description: {
 					rich_text: [
 						{
 							text: {
-								content: repo.description
-							}
-						}
-					]
+								content: repo.description,
+							},
+						},
+					],
 				},
 				Homepage: {
-					url: repo.homepage || null
+					url: repo.homepage || null,
 				},
 				Tags: {
 					multi_select: repo.tags.map(t => ({
-						name: t
-					}))
+						name: t,
+					})),
 				},
 				Link: {
-					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`
-				}
-			}
+					url: `https://github.com/${process.env.GITHUB__OWNER}/${repo.title}`,
+				},
+			},
 		})
 	}
 }

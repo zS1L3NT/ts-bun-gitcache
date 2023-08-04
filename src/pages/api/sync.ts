@@ -1,18 +1,15 @@
-import AfterEvery from "after-every"
 import assert from "assert"
 import colors from "colors"
-import http from "http"
+import { NextApiRequest, NextApiResponse } from "next"
 import Tracer from "tracer"
 
 import { PrismaClient } from "@prisma/client"
 
-import GithubRepository from "./repositories/GithubRepository"
-import NotionRepository from "./repositories/NotionRepository"
-import DiffCalc from "./utils/DiffCalc"
+import GithubRepository from "../../repositories/GithubRepository"
+import NotionRepository from "../../repositories/NotionRepository"
+import DiffCalc from "../../utils/DiffCalc"
 
-import "dotenv/config"
-
-global.logger = Tracer.colorConsole({
+const logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
 	format: [
 		"[{{timestamp}}] <{{path}}> {{message}}",
@@ -33,26 +30,14 @@ global.logger = Tracer.colorConsole({
 		error: colors.red.bold.italic,
 	},
 	preprocess: data => {
-		data.path = data.path
-			.split("ts-github-notion-sync")
-			.at(-1)!
-			.replace(/^(\/|\\)(dist|src)/, "src")
-			.replaceAll("\\", "/")
+		data.path = "src/" + data.path.split("/src/").at(-1)!.replaceAll("\\", "/")
 	},
 })
 
-const githubRepository = new GithubRepository()
-const notionRepository = new NotionRepository()
-const prisma = new PrismaClient()
-let syncLock = false
-
-const sync = async () => {
-	if (syncLock) {
-		logger.log(`Previous sync still ongoing, skipping current sync`)
-		return
-	}
-
-	syncLock = true
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const githubRepository = new GithubRepository()
+	const notionRepository = new NotionRepository()
+	const prisma = new PrismaClient()
 
 	try {
 		logger.log("Fetching Github Repositories")
@@ -92,29 +77,33 @@ const sync = async () => {
 			}
 		}
 
-		prisma.$transaction(
+		logger.log("Upserting into database")
+		await prisma.$transaction(
 			grs.map(gr =>
 				prisma.project.upsert({
 					where: { name: gr.title },
-					create: { name: gr.title, description: gr.description, topics: gr.tags, updated_at: gr.updatedAt },
-					update: { name: gr.title, description: gr.description, topics: gr.tags, updated_at: gr.updatedAt },
+					create: {
+						name: gr.title,
+						description: gr.description,
+						topics: gr.tags,
+						updated_at: gr.updatedAt,
+					},
+					update: {
+						name: gr.title,
+						description: gr.description,
+						topics: gr.tags,
+						updated_at: gr.updatedAt,
+					},
 				}),
 			),
 		)
 
+		await prisma.$disconnect()
+
 		logger.log("Syncing complete\n")
+		res.status(200).json({ message: "Syncing complete" })
 	} catch (err) {
 		logger.error(err)
-	} finally {
-		syncLock = false
+		res.status(400).json({ message: "Syncing failed", error: err })
 	}
 }
-
-AfterEvery(1).minutes(sync)
-
-const PORT = process.env.PORT || 8080
-http.createServer((_, res) => {
-	res.writeHead(200, { "Content-Type": "text/plain" })
-	res.write("GitHub Notion Sync running!")
-	res.end()
-}).listen(PORT, () => console.log(`Server running on PORT ${PORT}`))

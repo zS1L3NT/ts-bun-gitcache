@@ -1,13 +1,13 @@
 {
 	"env": {
-		// "browser": true,
-		// "es2021": true,
+		"browser": true,
+		"es2021": true,
 		"node": true
 	},
 	"extends": [
-		// "next/core-web-vitals",
+		"next/core-web-vitals",
 		"eslint:recommended",
-		// "plugin:react/recommended",
+		"plugin:react/recommended",
 		"plugin:@typescript-eslint/recommended",
 		"prettier"
 	],
@@ -18,7 +18,7 @@
 		"sourceType": "module"
 	},
 	"plugins": [
-		// "react",
+		"react",
 		"@typescript-eslint",
 		"simple-import-sort"
 	],
@@ -32,7 +32,7 @@
 		"no-empty": "warn",
 		"no-empty-function": "off",
 		"no-empty-pattern": "warn",
-		// "react/react-in-jsx-scope": "off",
+		"react/react-in-jsx-scope": "off",
 		"simple-import-sort/imports": [
 			"warn",
 			{

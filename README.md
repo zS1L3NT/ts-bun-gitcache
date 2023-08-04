@@ -1,6 +1,6 @@
 # Github Notion Sync
 
-![License](https://img.shields.io/github/license/zS1L3NT/ts-github-notion-sync?style=for-the-badge) ![Languages](https://img.shields.io/github/languages/count/zS1L3NT/ts-github-notion-sync?style=for-the-badge) ![Top Language](https://img.shields.io/github/languages/top/zS1L3NT/ts-github-notion-sync?style=for-the-badge) ![Commit Activity](https://img.shields.io/github/commit-activity/y/zS1L3NT/ts-github-notion-sync?style=for-the-badge) ![Last commit](https://img.shields.io/github/last-commit/zS1L3NT/ts-github-notion-sync?style=for-the-badge)
+![License](https://img.shields.io/github/license/zS1L3NT/web-next-gnsync?style=for-the-badge) ![Languages](https://img.shields.io/github/languages/count/zS1L3NT/web-next-gnsync?style=for-the-badge) ![Top Language](https://img.shields.io/github/languages/top/zS1L3NT/web-next-gnsync?style=for-the-badge) ![Commit Activity](https://img.shields.io/github/commit-activity/y/zS1L3NT/web-next-gnsync?style=for-the-badge) ![Last commit](https://img.shields.io/github/last-commit/zS1L3NT/web-next-gnsync?style=for-the-badge)
 
 Github Notion Sync is a server that reads all my github repositories and displays their information in my Notion board. This server syncs the Github data and Notion data in one direction, meaning that any change to a repository's information will be reflected in the Notion board. The Notion board can be viewed [here](https://zs1l3nt.notion.site/8ebb45edc82e4a6fafa3046a59fce9c2?v=c19a65a264514e6682c4736c5850a786)
 
@@ -36,17 +36,24 @@ $ npm run dev
 -   TypeScript
 	-   TypeScript
         -   [![@types/node](https://img.shields.io/badge/%40types%2Fnode-latest-red?style=flat-square)](https://npmjs.com/package/@types/node/v/latest)
+        -   [![@types/react](https://img.shields.io/badge/%40types%2Freact-%5E18.2.18-red?style=flat-square)](https://npmjs.com/package/@types/react/v/18.2.18)
         -   [![@typescript-eslint/eslint-plugin](https://img.shields.io/badge/%40typescript--eslint%2Feslint--plugin-latest-red?style=flat-square)](https://npmjs.com/package/@typescript-eslint/eslint-plugin/v/latest)
         -   [![@typescript-eslint/parser](https://img.shields.io/badge/%40typescript--eslint%2Fparser-latest-red?style=flat-square)](https://npmjs.com/package/@typescript-eslint/parser/v/latest)
         -   [![ts-node](https://img.shields.io/badge/ts--node-%5E10.9.1-red?style=flat-square)](https://npmjs.com/package/ts-node/v/10.9.1)
         -   [![typescript](https://img.shields.io/badge/typescript-%5E4.9.5-red?style=flat-square)](https://npmjs.com/package/typescript/v/4.9.5)
+	-	NextJS
+        -   [![next](https://img.shields.io/badge/next-%5E13.4.12-red?style=flat-square)](https://npmjs.com/package/next/v/13.4.12)
+        -   [![react](https://img.shields.io/badge/react-%5E18.2.0-red?style=flat-square)](https://npmjs.com/package/react/v/18.2.0)
+        -   [![react-dom](https://img.shields.io/badge/react--dom-%5E18.2.0-red?style=flat-square)](https://npmjs.com/package/react-dom/v/18.2.0)
 	-   Notion
-        -   [![@notionhq/client](https://img.shields.io/badge/%40notionhq%2Fclient-%5E1.0.4-red?style=flat-square)](https://npmjs.com/package/@notionhq/client/v/1.0.4)
+		-   [![@notionhq/client](https://img.shields.io/badge/%40notionhq%2Fclient-%5E1.0.4-red?style=flat-square)](https://npmjs.com/package/@notionhq/client/v/1.0.4)
 	-   Github
         -   [![@octokit/core](https://img.shields.io/badge/%40octokit%2Fcore-%5E3.6.0-red?style=flat-square)](https://npmjs.com/package/@octokit/core/v/3.6.0)
 	-	ESLint
         -   [![eslint](https://img.shields.io/badge/eslint-latest-red?style=flat-square)](https://npmjs.com/package/eslint/v/latest)
+        -   [![eslint-config-next](https://img.shields.io/badge/eslint--config--next-%5E13.4.12-red?style=flat-square)](https://npmjs.com/package/eslint-config-next/v/13.4.12)
         -   [![eslint-config-prettier](https://img.shields.io/badge/eslint--config--prettier-latest-red?style=flat-square)](https://npmjs.com/package/eslint-config-prettier/v/latest)
+        -   [![eslint-plugin-react](https://img.shields.io/badge/eslint--plugin--react-%5E7.33.1-red?style=flat-square)](https://npmjs.com/package/eslint-plugin-react/v/7.33.1)
         -   [![eslint-plugin-simple-import-sort](https://img.shields.io/badge/eslint--plugin--simple--import--sort-latest-red?style=flat-square)](https://npmjs.com/package/eslint-plugin-simple-import-sort/v/latest)
         -   [![prettier](https://img.shields.io/badge/prettier-latest-red?style=flat-square)](https://npmjs.com/package/prettier/v/latest)
 	-   Miscellaneous

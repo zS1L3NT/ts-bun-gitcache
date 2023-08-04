@@ -40,17 +40,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const prisma = new PrismaClient()
 
 	try {
-		logger.log("Fetching Github Repositories")
-		const grs = await githubRepository.getRepositories()
-
-		logger.log("Fetching Notion Repositories")
-		const nrs = await notionRepository.getRepositories()
+		logger.log("Fetching Github and Notion Repositories")
+		const time = Date.now()
+		const [grs, nrs] = await Promise.all([
+			githubRepository.getRepositories(),
+			notionRepository.getRepositories(),
+		])
+		logger.log(`Fetching took ${Date.now() - time}ms`)
 
 		// Delete non-matching notion pages
 		for (const nr of nrs) {
 			if (!grs.find(gr => gr.id === nr.id)) {
 				logger.warn(`Deleting non-matching notion page <${nr.title}>`)
-				await notionRepository.deletePage(nr.pageId)
+				notionRepository.deletePage(nr.pageId)
 				nrs.splice(
 					nrs.findIndex(r => r.id === nr.id),
 					1,
@@ -59,12 +61,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		// Add inexistent github repositories
-		for (const gr of grs) {
-			if (!nrs.find(nr => nr.id === gr.id)) {
-				logger.info(`Creating new notion page <${gr.title}>`)
-				nrs.push(await notionRepository.createPage(gr))
-			}
-		}
+		// for (const gr of grs) {
+		// 	if (!nrs.find(nr => nr.id === gr.id)) {
+		// 		logger.info(`Creating new notion page <${gr.title}>`)
+		// 		nrs.push(await notionRepository.createPage(gr))
+		// 	}
+		// }
+		nrs.push(
+			...(await Promise.all(
+				grs
+					.filter(gr => !nrs.find(nr => nr.id === gr.id))
+					.map(async gr => {
+						logger.info(`Creating new notion page <${gr.title}>`)
+						return await notionRepository.createPage(gr)
+					}),
+			)),
+		)
 
 		assert(grs.length === nrs.length)
 		for (const gr of grs) {
@@ -78,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		logger.log("Upserting into database")
-		await prisma.$transaction(
+		prisma.$transaction(
 			grs.map(gr =>
 				prisma.project.upsert({
 					where: { name: gr.title },
@@ -97,8 +109,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				}),
 			),
 		)
-
-		await prisma.$disconnect()
 
 		logger.log("Syncing complete\n")
 		res.status(200).json({ message: "Syncing complete" })

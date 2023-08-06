@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 		// Delete non-matching prisma rows
 		for (const pr of prs) {
-			if (!grs.find(gr => gr.title === pr.title)) {
+			if (!grs.filter(gr => !gr.private).find(gr => gr.title === pr.title)) {
 				logger.warn(`Deleting non-matching prisma row <${pr.title}>`)
 				await prisma.project.delete({ where: { title: pr.title } })
 				prs.splice(
@@ -82,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		// Add inexistent prisma rows
-		for (const gr of grs) {
+		for (const gr of grs.filter(gr => !gr.private)) {
 			if (!prs.find(pr => pr.title === gr.title)) {
 				logger.info(`Creating new prisma row <${gr.title}>`)
 				prs.push(
@@ -110,7 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		// Update out of date prisma rows
-		for (const gr of grs) {
+		for (const gr of grs.filter(gr => !gr.private)) {
 			const pr = prs.find(pr => pr.title === gr.title)!
 
 			const diff = new GRPRDiffCalc(gr, pr)

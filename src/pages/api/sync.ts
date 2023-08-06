@@ -41,18 +41,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	try {
 		logger.log("Fetching Github and Notion Repositories")
-		const time = Date.now()
+		const time1 = Date.now()
 		const [grs, nrs] = await Promise.all([
 			githubRepository.getRepositories(),
 			notionRepository.getRepositories(),
 		])
-		logger.log(`Fetching took ${Date.now() - time}ms`)
+		logger.log(`Fetching took ${Date.now() - time1}ms`)
 
 		// Delete non-matching notion pages
+
 		for (const nr of nrs) {
 			if (!grs.find(gr => gr.id === nr.id)) {
 				logger.warn(`Deleting non-matching notion page <${nr.title}>`)
-				notionRepository.deletePage(nr.pageId)
+				await notionRepository.deletePage(nr.pageId)
 				nrs.splice(
 					nrs.findIndex(r => r.id === nr.id),
 					1,
@@ -61,22 +62,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		// Add inexistent github repositories
-		// for (const gr of grs) {
-		// 	if (!nrs.find(nr => nr.id === gr.id)) {
-		// 		logger.info(`Creating new notion page <${gr.title}>`)
-		// 		nrs.push(await notionRepository.createPage(gr))
-		// 	}
-		// }
-		nrs.push(
-			...(await Promise.all(
-				grs
-					.filter(gr => !nrs.find(nr => nr.id === gr.id))
-					.map(async gr => {
-						logger.info(`Creating new notion page <${gr.title}>`)
-						return await notionRepository.createPage(gr)
-					}),
-			)),
-		)
+		for (const gr of grs) {
+			if (!nrs.find(nr => nr.id === gr.id)) {
+				logger.info(`Creating new notion page <${gr.title}>`)
+				nrs.push(await notionRepository.createPage(gr))
+			}
+		}
 
 		assert(grs.length === nrs.length)
 		for (const gr of grs) {
@@ -85,11 +76,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			const diffCalc = new DiffCalc(gr, nr)
 			if (diffCalc.getUpdatedKeys().length > 0) {
 				logger.info(`Updating notion page <${nr.title}>`, diffCalc.formatNotionToGithub())
-				notionRepository.updatePage(gr, nr.pageId)
+				await notionRepository.updatePage(gr, nr.pageId)
 			}
 		}
 
 		logger.log("Upserting into database")
+		const time2 = Date.now()
 		await prisma.$transaction(
 			grs
 				.filter(gr => !gr.private)
@@ -111,6 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 					}),
 				),
 		)
+		logger.log(`Upserting took ${Date.now() - time2}ms`)
 
 		logger.log("Syncing complete\n")
 		res.status(200).json({ message: "Syncing complete" })

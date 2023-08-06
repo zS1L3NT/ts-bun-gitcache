@@ -91,23 +91,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 		logger.log("Upserting into database")
 		prisma.$transaction(
-			grs.map(gr =>
-				prisma.project.upsert({
-					where: { name: gr.title },
-					create: {
-						name: gr.title,
-						description: gr.description,
-						topics: gr.tags,
-						updated_at: gr.updatedAt,
-					},
-					update: {
-						name: gr.title,
-						description: gr.description,
-						topics: gr.tags,
-						updated_at: gr.updatedAt,
-					},
-				}),
-			),
+			grs
+				.filter(gr => !gr.private)
+				.map(gr =>
+					prisma.project.upsert({
+						where: { name: gr.title },
+						create: {
+							name: gr.title,
+							description: gr.description,
+							topics: gr.tags,
+							updated_at: gr.updatedAt,
+						},
+						update: {
+							name: gr.title,
+							description: gr.description,
+							topics: gr.tags,
+							updated_at: gr.updatedAt,
+						},
+					}),
+				),
 		)
 
 		logger.log("Syncing complete\n")

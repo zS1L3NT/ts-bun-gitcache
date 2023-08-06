@@ -4,7 +4,7 @@
 
 Github Notion Sync is a server that reads all my github repositories and displays their information in my Notion board. This server syncs the Github data and Notion data in one direction, meaning that any change to a repository's information will be reflected in the Notion board. The Notion board can be viewed [here](https://zs1l3nt.notion.site/8ebb45edc82e4a6fafa3046a59fce9c2?v=c19a65a264514e6682c4736c5850a786)
 
-This project also stores fetched data from GitHub into a database so that my [portfolio website](https://github.com/zS1L3NT/ts-next-portfolio) can do advanced querying on the fetched data.
+This project also stores fetched data from GitHub into a database so that my [portfolio website](https://github.com/zS1L3NT/web-next-portfolio) can do advanced querying on the fetched data.
 
 ## Motivation
 

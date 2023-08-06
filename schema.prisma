@@ -11,8 +11,8 @@ datasource db {
 }
 
 model Project {
-    name        String   @id
+    title       String   @id
     description String
-    topics      String[]
+    tags        String[]
     updated_at  DateTime
 }

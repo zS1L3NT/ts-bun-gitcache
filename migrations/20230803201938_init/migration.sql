@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "Project" (
-    "name" STRING NOT NULL,
+    "title" STRING NOT NULL,
     "description" STRING NOT NULL,
-    "topics" STRING[],
+    "tags" STRING[],
 
-    CONSTRAINT "Project_pkey" PRIMARY KEY ("name")
+    CONSTRAINT "Project_pkey" PRIMARY KEY ("title")
 );

@@ -9,7 +9,7 @@ const pick = <
 	return Object.fromEntries(Object.entries(object).filter(([key]) => keys.includes(key)))
 }
 
-export default class DiffCalc {
+export default class GRNRDiffCalc {
 	public constructor(
 		public gr: Repo,
 		public nr: Repo,

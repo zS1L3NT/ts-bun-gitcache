@@ -27,7 +27,7 @@ export default class NotionRepository {
 						readme: true,
 						archived: false,
 						private: false,
-						pageId: page.id,
+						page_id: page.id,
 					}
 
 					if (page.properties.ID && page.properties.ID.type === "number") {
@@ -88,9 +88,9 @@ export default class NotionRepository {
 		return repos.sort((a, b) => new Intl.Collator().compare(a.title, b.title))
 	}
 
-	public async deletePage(pageId: string) {
+	public async deletePage(page_id: string) {
 		await this.notion.pages.update({
-			page_id: pageId,
+			page_id: page_id,
 			archived: true,
 		})
 	}
@@ -161,23 +161,23 @@ export default class NotionRepository {
 		if ("page_id" in response.parent) {
 			return {
 				...repo,
-				pageId: response.parent.page_id,
+				page_id: response.parent.page_id,
 			}
 		}
 
 		if ("database_id" in response.parent) {
 			return {
 				...repo,
-				pageId: response.parent.database_id,
+				page_id: response.parent.database_id,
 			}
 		}
 
 		throw new Error("Unknown page id")
 	}
 
-	public async updatePage(repo: Repo, pageId: string) {
+	public async updatePage(repo: Repo, page_id: string) {
 		await this.notion.pages.update({
-			page_id: pageId,
+			page_id: page_id,
 			properties: {
 				Name: {
 					title: [

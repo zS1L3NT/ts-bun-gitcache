@@ -1,4 +1,3 @@
-import assert from "assert"
 import colors from "colors"
 import { NextApiRequest, NextApiResponse } from "next"
 import Tracer from "tracer"
@@ -7,7 +6,8 @@ import { PrismaClient } from "@prisma/client"
 
 import GithubRepository from "../../repositories/GithubRepository"
 import NotionRepository from "../../repositories/NotionRepository"
-import DiffCalc from "../../utils/DiffCalc"
+import GRNRDiffCalc from "../../utils/GRNRDiffCalc"
+import GRPRDiffCalc from "../../utils/GRPRDiffCalc"
 
 const logger = Tracer.colorConsole({
 	level: process.env.LOG_LEVEL || "log",
@@ -40,20 +40,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const prisma = new PrismaClient()
 
 	try {
-		logger.log("Fetching Github and Notion Repositories")
+		logger.log("Fetching Github, Notion and Prisma Repositories")
 		const time1 = Date.now()
-		const [grs, nrs] = await Promise.all([
+		const [grs, nrs, prs] = await Promise.all([
 			githubRepository.getRepositories(),
 			notionRepository.getRepositories(),
+			prisma.project.findMany(),
 		])
 		logger.log(`Fetching took ${Date.now() - time1}ms`)
 
 		// Delete non-matching notion pages
-
 		for (const nr of nrs) {
 			if (!grs.find(gr => gr.id === nr.id)) {
 				logger.warn(`Deleting non-matching notion page <${nr.title}>`)
-				await notionRepository.deletePage(nr.pageId)
+				await notionRepository.deletePage(nr.page_id)
 				nrs.splice(
 					nrs.findIndex(r => r.id === nr.id),
 					1,
@@ -61,7 +61,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			}
 		}
 
-		// Add inexistent github repositories
+		// Delete non-matching prisma rows
+		for (const pr of prs) {
+			if (!grs.find(gr => gr.title === pr.title)) {
+				logger.warn(`Deleting non-matching prisma row <${pr.title}>`)
+				await prisma.project.delete({ where: { title: pr.title } })
+				prs.splice(
+					prs.findIndex(r => r.title === pr.title),
+					1,
+				)
+			}
+		}
+
+		// Add inexistent notion pages
 		for (const gr of grs) {
 			if (!nrs.find(nr => nr.id === gr.id)) {
 				logger.info(`Creating new notion page <${gr.title}>`)
@@ -69,41 +81,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			}
 		}
 
-		assert(grs.length === nrs.length)
+		// Add inexistent prisma rows
 		for (const gr of grs) {
-			const nr = nrs.find(nr => nr.id === gr.id)!
-
-			const diffCalc = new DiffCalc(gr, nr)
-			if (diffCalc.getUpdatedKeys().length > 0) {
-				logger.info(`Updating notion page <${nr.title}>`, diffCalc.formatNotionToGithub())
-				await notionRepository.updatePage(gr, nr.pageId)
+			if (!prs.find(pr => pr.title === gr.title)) {
+				logger.info(`Creating new prisma row <${gr.title}>`)
+				prs.push(
+					await prisma.project.create({
+						data: {
+							title: gr.title,
+							description: gr.description,
+							tags: gr.tags,
+							updated_at: gr.updated_at,
+						},
+					}),
+				)
 			}
 		}
 
-		logger.log("Upserting into database")
-		const time2 = Date.now()
-		await prisma.$transaction(
-			grs
-				.filter(gr => !gr.private)
-				.map(gr =>
-					prisma.project.upsert({
-						where: { name: gr.title },
-						create: {
-							name: gr.title,
-							description: gr.description,
-							topics: gr.tags,
-							updated_at: gr.updatedAt,
-						},
-						update: {
-							name: gr.title,
-							description: gr.description,
-							topics: gr.tags,
-							updated_at: gr.updatedAt,
-						},
-					}),
-				),
-		)
-		logger.log(`Upserting took ${Date.now() - time2}ms`)
+		// Update out of date notion pages
+		for (const gr of grs) {
+			const nr = nrs.find(nr => nr.id === gr.id)!
+
+			const diff = new GRNRDiffCalc(gr, nr)
+			if (diff.getUpdatedKeys().length > 0) {
+				logger.info(`Updating notion page <${nr.title}>`, diff.formatNotionToGithub())
+				await notionRepository.updatePage(gr, nr.page_id)
+			}
+		}
+
+		// Update out of date prisma rows
+		for (const gr of grs) {
+			const pr = prs.find(pr => pr.title === gr.title)!
+
+			const diff = new GRPRDiffCalc(gr, pr)
+			if (diff.getUpdatedKeys().length > 0) {
+				logger.info(`Updating prisma row <${pr.title}>`, diff.formatPrismaToGithub())
+				await prisma.project.update({
+					where: { title: pr.title },
+					data: {
+						title: gr.title,
+						description: gr.description,
+						tags: gr.tags,
+						updated_at: gr.updated_at,
+					},
+				})
+			}
+		}
 
 		logger.log("Syncing complete\n")
 		res.status(200).json({ message: "Syncing complete" })

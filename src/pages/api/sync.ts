@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		logger.log("Upserting into database")
-		prisma.$transaction(
+		await prisma.$transaction(
 			grs
 				.filter(gr => !gr.private)
 				.map(gr =>

@@ -1,0 +1,7 @@
+version: 3.8.0
+services:
+    gitcache:
+        working_dir: /app
+        build: .
+        container_name: gitcache
+        env_file: ./.env

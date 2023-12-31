@@ -2,16 +2,16 @@
 	"compilerOptions": {
 		/** Transpiler */
 		"target": "esnext",
-		"lib": ["dom", "dom.iterable", "esnext"], // "esnext"
-		"module": "esnext", // commonjs
-		"moduleResolution": "node",
+		"lib": ["esnext"],
+		"module": "esnext",
+		"moduleResolution": "bundler",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 
 		/** Project */
 		"rootDir": "src",
 		"outDir": "dist",
-		"typeRoots": ["./node_modules/@types", "./src/@types"],
+		"types": ["bun-types"],
 
 		/** Type Checking */
 		"strict": true,

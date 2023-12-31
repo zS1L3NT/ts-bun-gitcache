@@ -1,40 +1,26 @@
 {
-	"name": "ts-next-gnsync",
-	"description": "Sync my notion board with my github repositories information",
-	"author": "zS1L3NT <zechariahtan144@gmail.com> (https://www.zectan.com)",
+	"name": "ts-bun-gitcache",
+	"description": "Project to cache my github repositories in PostgreSQL in a queryable way",
+	"author": "zS1L3NT <dev@zectan.com> (https://www.zectan.com)",
 	"license": "GPL-3.0",
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build && prisma generate",
-		"start": "next start",
-		"lint": "next lint",
-		"lint:fix": "eslint src --fix",
-		"prettier": "prettier src --check",
-		"prettier:fix": "prettier src --write",
-		"clean": "tsc --noEmit && eslint src --fix && prettier src --write"
+		"start": "bun src/app.ts",
+		"lint": "tsc --noEmit && eslint src --fix && prettier src --write && rm tsconfig.tsbuildinfo"
 	},
 	"dependencies": {
-		"@notionhq/client": "^1.0.4",
 		"@octokit/core": "^3.6.0",
 		"@prisma/client": "^5.1.1",
 		"axios": "^0.27.2",
-		"colors": "^1.4.0",
-		"next": "^13.4.12",
-		"no-try": "^3.1.0",
-		"prisma": "^5.1.1",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"tracer": "^1.1.6"
+		"node-cron": "^3.0.3",
+		"prisma": "^5.1.1"
 	},
 	"devDependencies": {
-		"@types/node": "latest",
-		"@types/react": "^18.2.18",
+		"@types/node-cron": "^3.0.11",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",
+		"bun-types": "^1.0.20",
 		"eslint": "latest",
-		"eslint-config-next": "^13.4.12",
 		"eslint-config-prettier": "latest",
-		"eslint-plugin-react": "^7.33.1",
 		"eslint-plugin-simple-import-sort": "latest",
 		"prettier": "latest",
 		"typescript": "^4.9.5"

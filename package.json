@@ -9,10 +9,10 @@
 	},
 	"dependencies": {
 		"@octokit/core": "^3.6.0",
-		"@prisma/client": "^5.1.1",
+		"@prisma/client": "5.7.1",
 		"axios": "^0.27.2",
 		"node-cron": "^3.0.3",
-		"prisma": "^5.1.1"
+		"prisma": "5.7.1"
 	},
 	"devDependencies": {
 		"@types/node-cron": "^3.0.11",

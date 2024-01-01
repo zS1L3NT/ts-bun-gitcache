@@ -1,5 +1,5 @@
 import axios from "axios"
-import cron from "node-cron"
+import schedule from "node-schedule"
 
 import { Octokit } from "@octokit/core"
 import { PrismaClient } from "@prisma/client"
@@ -8,7 +8,9 @@ import Difference from "./utils/Difference"
 
 const prisma = new PrismaClient()
 
-const sync = async () => {
+const sync = async (now: Date) => {
+	console.log(`Syncing at ${now.toLocaleString("en-SG")}`)
+
 	const github = new Octokit({ auth: Bun.env.GITHUB_TOKEN })
 
 	const { data: user } = await github.request("GET /user")
@@ -55,7 +57,7 @@ const sync = async () => {
 	}
 
 	try {
-		console.log("Fetching Github, Notion and Prisma Repositories")
+		console.log("Fetching Github and Prisma Repositories")
 		const time = Date.now()
 		const [grs, prs] = await Promise.all([
 			Promise.all(promises).then(rs => rs.sort((a, b) => a.title.localeCompare(b.title))),
@@ -116,4 +118,5 @@ const sync = async () => {
 	}
 }
 
-cron.schedule("0 0 * * *", sync)
+await sync(new Date())
+schedule.scheduleJob("0 0 * * *", sync)
